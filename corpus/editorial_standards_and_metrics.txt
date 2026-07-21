@@ -1,0 +1,207 @@
+EDITORIAL STANDARDS AND QUALITY METRICS IN JOURNALISM
+Source: Compiled from industry standards bodies, editorial guidelines, and academic research
+Document type: RAG corpus — media industry context
+
+OVERVIEW
+
+This document describes the frameworks used to assess editorial quality, standards, and positioning in journalism. It provides context for analysing how a media outlet approaches its journalism and how it compares to peers. These frameworks are used by researchers, regulators, and industry analysts to evaluate news organisations.
+
+---
+
+EDITORIAL STANDARDS FRAMEWORKS
+
+1. ACCURACY AND VERIFICATION
+
+The foundation of journalistic quality is factual accuracy. Leading news organisations maintain formal verification procedures:
+
+- Multi-source requirement: Major factual claims must be verified by at least two independent sources
+- On-record preference: Sources are identified by name where possible; anonymous sources require editorial justification
+- Right of reply: Subjects of critical reporting are given opportunity to respond before publication
+- Correction policies: Transparent, timely corrections to factual errors; corrections as prominent as original error
+- Pre-publication fact-checking: Some outlets (Der Spiegel, The New Yorker) maintain dedicated fact-checking departments
+
+Outlets with robust verification procedures are generally considered higher quality by industry standards. The presence of a fact-checking department is a positive quality indicator.
+
+2. EDITORIAL INDEPENDENCE
+
+Independence from commercial and political influence is a core journalistic value. Indicators include:
+
+- Separation of editorial and commercial: Advertising and sponsorship decisions do not influence editorial coverage
+- Ownership transparency: Clear disclosure of who owns the outlet and their other interests
+- Journalist independence: Reporters are not required to promote owner interests
+- Government independence: Public broadcasters maintain editorial distance from government
+- Source independence: Journalists are not unduly reliant on single institutional sources
+
+3. IMPARTIALITY AND BALANCE
+
+Different news traditions have different approaches to impartiality:
+
+Anglo-American tradition: Strong norm of separating news from opinion, with news reporting presenting multiple perspectives
+Continental European tradition: More acceptance of openly opinionated journalism, with clearer labelling of perspective
+Anglo-American public broadcasting (BBC, ABC, CBC): Statutory or charter requirements for political balance
+
+Impartiality is contested. Critics argue that false balance (treating unequal positions as equally valid) distorts reality. Others argue that open advocacy undermines trust.
+
+4. TRANSPARENCY
+
+Modern editorial standards emphasise transparency:
+- Disclosure of funding sources
+- Disclosure of journalist conflicts of interest
+- Methodological transparency in data journalism
+- Source transparency where possible
+- AI use disclosure
+
+---
+
+AUDIENCE METRICS AND REACH
+
+News organisations are assessed on several audience metrics:
+
+REACH METRICS
+- Unique visitors/browsers: Monthly or weekly count of distinct individuals accessing content
+- Page views: Total content consumption (less useful as engagement metric)
+- Time on site: Indicator of depth of engagement
+- Return visit rate: Measure of audience loyalty
+- Subscriber count: Direct relationship measure (most valuable commercially)
+
+ENGAGEMENT METRICS
+- Article completion rate: Proportion of readers who finish articles
+- Social sharing: Amplification by audience
+- Comment and discussion activity
+- Newsletter open rates
+- Podcast downloads/listens
+
+AUDIENCE QUALITY INDICATORS
+- Educated/professional audience: Higher advertising value, more likely to subscribe
+- Geographic distribution: Global vs national vs local
+- Age distribution: Younger audiences more valuable for long-term sustainability
+- Platform mix: Direct (owned) vs referred (platform-dependent) traffic ratio
+
+---
+
+TOPIC COVERAGE ANALYSIS
+
+The topics a news outlet covers are a primary indicator of its editorial positioning. Topic analysis involves:
+
+COVERAGE BREADTH
+- Range of topics covered (politics, economics, culture, science, sports, international)
+- Depth of specialist coverage in key areas
+- Balance between breaking news and analysis/features
+
+TOPIC WEIGHTING
+- Which topics receive the most coverage space and senior journalist attention?
+- Is coverage reactive (responding to events) or proactive (agenda-setting)?
+- Does the outlet lead or follow on major stories?
+
+GEOGRAPHIC FOCUS
+- Domestic vs international coverage ratio
+- Which regions receive most international coverage?
+- Presence of foreign correspondents vs wire service dependency
+
+STORY TYPE MIX
+- Breaking news: Fast, high volume, often commodity
+- Analysis and context: Slower, differentiated
+- Investigation: Resource-intensive, high impact
+- Features and longform: Brand-building
+- Data journalism: Growing specialism
+- Opinion and commentary: Reader engagement but polarising
+
+---
+
+COMPETITIVE INTELLIGENCE FRAMEWORK FOR MEDIA OUTLETS
+
+When analysing a media outlet competitively, the following framework provides structure:
+
+SECTION 1: IDENTITY AND POSITIONING
+- Ownership and governance structure
+- Editorial mission and stated values
+- Revenue model (advertising, subscription, public, philanthropy)
+- Target audience definition
+- Geographic scope
+
+SECTION 2: EDITORIAL PERFORMANCE
+- Topic coverage breadth and depth
+- Breaking news capability
+- Investigative capacity
+- Opinion and commentary volume
+- Multimedia production
+
+SECTION 3: AUDIENCE AND REACH
+- Total reach across platforms
+- Audience demographics and loyalty
+- Subscriber or member count
+- Social media following and engagement
+- Direct vs referred traffic balance
+
+SECTION 4: COMPETITIVE POSITION
+- Market share in home territory
+- International presence
+- Key differentiators vs competitors
+- Competitive threats
+- Strategic alliances and partnerships
+
+SECTION 5: EDITORIAL STRENGTHS AND WEAKNESSES
+- Areas of recognised excellence
+- Coverage gaps or weaknesses
+- Historical controversies or trust events
+- Recent strategic changes
+
+SECTION 6: AUDIENCE SENTIMENT
+- Reader/viewer perception of bias
+- Trust ratings vs competitors
+- Criticism from across political spectrum
+- Community and audience relationship quality
+
+---
+
+BIAS INDICATORS IN MEDIA ANALYSIS
+
+Assessing potential bias in news coverage is complex but several indicators are used:
+
+LANGUAGE ANALYSIS
+- Word choice: loaded vs neutral language
+- Passive vs active voice in attribution
+- Adjective density (more adjectives often indicates more perspective)
+- Headline framing vs body text consistency
+
+SOURCE ANALYSIS
+- Which types of sources are quoted most (government, business, civil society, experts)?
+- Geographic diversity of sources
+- Gender balance of quoted sources
+- Ideological range of opinion pieces
+
+STORY SELECTION
+- Which stories receive front-page treatment?
+- Which stories are ignored?
+- Proportion of positive vs negative coverage of political actors
+
+FRAMING ANALYSIS
+- How are issues framed? (e.g. immigration as crisis vs humanitarian issue)
+- What background assumptions are treated as given?
+- Which aspects of a story are emphasised?
+
+These indicators are used by academic researchers, fact-checkers, and media critics to assess editorial positioning. No outlet is without some degree of perspective; the question is whether perspective is disclosed and whether it distorts factual accuracy.
+
+---
+
+QUALITY JOURNALISM INDICATORS SUMMARY
+
+High quality indicators:
++ Dedicated fact-checking capacity
++ Strong correction policy
++ Separation of news and opinion
++ Transparent ownership and funding
++ International correspondent network
++ Investigative journalism capacity
++ High trust ratings in audience surveys
++ Awards and peer recognition
++ Editorial independence protections
+
+Risk indicators:
+- Ownership concentration or opacity
+- History of significant factual errors
+- Lack of correction policy
+- Over-reliance on single source types
+- Commercial pressure on editorial decisions
+- Political interference in editorial appointments
+- Declining audience or financial distress

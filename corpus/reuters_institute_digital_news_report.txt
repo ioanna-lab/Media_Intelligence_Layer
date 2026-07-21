@@ -1,0 +1,111 @@
+REUTERS INSTITUTE DIGITAL NEWS REPORT — KEY FINDINGS SUMMARY
+Source: Reuters Institute for the Study of Journalism, University of Oxford
+Document type: RAG corpus — media industry context
+Based on: Annual Digital News Report research (2024-2026 trends)
+
+OVERVIEW
+
+The Reuters Institute Digital News Report is the world's largest ongoing study of news consumption. It surveys tens of thousands of people across more than 40 countries annually, tracking how people access, consume, and pay for news. The report is produced by the Reuters Institute for the Study of Journalism at the University of Oxford.
+
+KEY FINDINGS — NEWS CONSUMPTION TRENDS
+
+1. TRUST IN NEWS
+
+Trust in news has declined across most markets over the past decade. On average, fewer than four in ten people trust the news most of the time. Trust is highest in Finland, Portugal, and Kenya, and lowest in the United States, France, and Greece.
+
+Public broadcasters and established quality newspapers generally command higher trust than online-only outlets and social media platforms. However, trust varies significantly by political affiliation — audiences on the political left tend to trust public and quality outlets more, while those on the right show greater distrust of mainstream media.
+
+Key trust indicators for media outlets:
+- Accuracy and correction policies
+- Transparency about ownership and funding
+- Clear separation of news and opinion
+- Breadth of sources quoted
+- Track record on major stories
+
+2. DIGITAL vs PRINT CONSUMPTION
+
+The shift from print to digital consumption is now largely complete in most developed markets. Print remains relevant primarily among older demographics (55+) and in some Northern European markets where newspaper readership has historically been strong.
+
+Online news consumption is dominated by:
+- Direct visits to news websites and apps (declining)
+- Social media platforms (stable but fragmenting)
+- Search engines as discovery mechanisms (dominant)
+- Messaging apps (growing, especially WhatsApp)
+- Email newsletters (growing among engaged news consumers)
+
+3. PLATFORM DEPENDENCY
+
+News organisations face a structural challenge: large proportions of their audience arrive via third-party platforms rather than directly. This creates dependency on algorithmic distribution systems controlled by companies with different incentives from journalism.
+
+Facebook reach for news publishers has declined significantly since 2020. X (formerly Twitter) has become less reliable as a news distribution channel following ownership changes. Google Discover and Apple News have grown in importance.
+
+TikTok has emerged as a significant news discovery platform among younger audiences (under 35), though engagement with long-form or complex stories remains lower than on traditional platforms.
+
+4. AVOIDANCE OF NEWS
+
+News avoidance — defined as deliberately avoiding news some or most of the time — has increased significantly across all markets. The most commonly cited reasons are:
+
+- News has a negative effect on mood
+- News is perceived as untrustworthy or politically biased
+- News feels repetitive with nothing new to say
+- News feels overwhelming or hard to understand
+- Personal news is sufficient (social networks as alternative)
+
+News avoidance is highest among younger audiences and those with lower incomes. It is a significant challenge for media outlets seeking to build sustainable audience relationships.
+
+5. PAYING FOR NEWS
+
+The proportion of people paying for online news has grown but remains a minority behaviour. In most markets, fewer than 20% of digital news consumers pay for any online news. The highest rates of payment are found in Norway, Sweden, and the United States.
+
+Successful subscription models share several characteristics:
+- Strong brand and editorial reputation
+- Distinctive content not available elsewhere
+- Regular habit-forming products (daily newsletters, podcasts)
+- Clear value proposition beyond breaking news
+
+The New York Times is the global leader in digital news subscriptions, with over 10 million digital subscribers. The Guardian has built a reader revenue model based on voluntary contributions rather than hard paywalls.
+
+COMPETITIVE DYNAMICS IN INTERNATIONAL NEWS
+
+The international English-language news market is dominated by a small number of large organisations: Reuters, Associated Press, BBC News, CNN, The Guardian, and The New York Times. These outlets compete for global audiences while maintaining different editorial models.
+
+Reuters and AP operate primarily as wire services, supplying content to other news organisations rather than building direct consumer audiences. BBC News maintains the largest global digital news audience among public broadcasters.
+
+The Guardian has pursued an unusual strategy: removing its paywall entirely and relying on reader contributions and philanthropy. This has allowed it to build a large global audience but creates ongoing financial uncertainty.
+
+Der Spiegel is Germany's most influential news magazine, operating a hybrid model with both subscription digital content and free access. It has strong investigative credentials and significant domestic audience dominance.
+
+EDITORIAL POSITIONING FRAMEWORKS
+
+News outlets can be assessed across several editorial dimensions:
+
+1. Political orientation: Left-centre, centre, right-centre spectrum
+2. News values: Breaking news speed vs depth and analysis
+3. Audience focus: Mass market vs niche/quality
+4. Geographic scope: Local, national, international
+5. Revenue model: Advertising, subscription, public funding, philanthropy
+6. Editorial independence: Ownership structure and governance
+
+These dimensions interact. An outlet's revenue model significantly shapes its editorial priorities — advertising-dependent outlets face different incentives than subscription or publicly funded ones.
+
+AUDIENCE SEGMENTATION
+
+Modern news audiences can be segmented into:
+
+- Engaged news enthusiasts (15-20%): High consumption, multiple sources, likely to pay
+- Casual news consumers (40-50%): Occasional consumption, primarily via social or search
+- News avoiders (30-40%): Deliberate avoidance, reached only via incidental exposure
+
+The most commercially valuable segment is engaged enthusiasts, but the largest segment is casual consumers. Editorial and product strategies must address both.
+
+EMERGING TRENDS
+
+1. AI-generated content: News organisations are experimenting with AI for routine content (sports results, financial reports, weather). Concerns about accuracy and disclosure are significant.
+
+2. Audio and podcasting: News podcasts have grown substantially. The Daily (NYT), Global News Podcast (BBC), and similar daily briefings command large loyal audiences.
+
+3. Video journalism: Short-form video journalism has grown, particularly for younger audiences. TikTok, Instagram Reels, and YouTube Shorts are becoming news distribution channels.
+
+4. Newsletters: Direct email relationships with audiences have become strategically important as platform dependency increases.
+
+5. Community and membership: Some outlets are building community features to increase engagement and reduce churn among paying subscribers.

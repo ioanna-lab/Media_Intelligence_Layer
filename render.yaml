@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: media-intelligence-agent
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python src/app.py
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: PINECONE_API_KEY
+        sync: false
+      - key: PINECONE_INDEX_NAME
+        value: media-intelligence
+      - key: TAVILY_API_KEY
+        sync: false
+      - key: NEWSAPI_KEY
+        sync: false
+      - key: GUARDIAN_API_KEY
+        sync: false

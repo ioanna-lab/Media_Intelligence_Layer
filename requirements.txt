@@ -1,0 +1,36 @@
+# Core agent framework
+langchain>=0.2.0
+langchain-openai>=0.1.0
+langchain-pinecone>=0.1.0
+langgraph>=0.1.0
+
+# Vector DB
+pinecone-client>=3.0.0
+
+# LLM
+openai>=1.0.0
+
+# Tools / APIs
+tavily-python>=0.3.0
+newsapi-python>=0.2.7
+mediastack          # no version pin — install latest
+
+# RSS parsing (no API key needed)
+feedparser>=6.0.0
+
+# Inter-rater reliability (consensus scoring)
+krippendorff>=0.6.0
+
+# HTTP
+requests>=2.31.0
+
+# Environment
+python-dotenv>=1.0.0
+
+# Utilities
+tiktoken>=0.6.0      # Token counting for chunking
+
+# FastAPI web service
+fastapi>=0.110.0
+uvicorn>=0.29.0          # ASGI server that runs FastAPI
+pydantic>=2.0.0          # Data validation (used by FastAPI)

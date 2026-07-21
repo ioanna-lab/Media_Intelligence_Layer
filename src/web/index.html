@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Intelligence Agent</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --navy: #0D1B2A; --ink: #1B2A3B; --red: #C0392B;
+            --gold: #D4A853; --paper: #F8F5EF; --white: #FFFFFF;
+            --muted: #8B92A5; --border: #E2DDD5; --green: #1A7A4A;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; }
+
+        header {
+            background: var(--navy); padding: 0 40px;
+            display: flex; align-items: center; justify-content: space-between;
+            height: 64px; border-bottom: 2px solid var(--red);
+        }
+        .header-brand { display: flex; align-items: center; gap: 12px; }
+        .header-logo {
+            width: 32px; height: 32px; background: var(--red); border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: white;
+        }
+        .header-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; color: white; }
+        .header-subtitle { font-size: 11px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; }
+        .header-badge { font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        /* HOME */
+        #home { max-width: 760px; margin: 0 auto; padding: 80px 24px; }
+        .home-eyebrow { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--red); font-weight: 600; margin-bottom: 16px; }
+        .home-headline { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 700; color: var(--navy); line-height: 1.1; margin-bottom: 20px; }
+        .home-headline span { color: var(--red); }
+        .home-desc { font-size: 17px; line-height: 1.7; color: #4A5568; margin-bottom: 48px; max-width: 580px; }
+        .input-group { background: white; border: 1.5px solid var(--border); border-radius: 10px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 32px; }
+        .input-label { font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: block; }
+        .input-row { display: flex; gap: 12px; }
+        .outlet-input { flex: 1; padding: 14px 18px; font-size: 16px; font-family: 'Inter', sans-serif; border: 1.5px solid var(--border); border-radius: 8px; outline: none; color: var(--ink); background: var(--paper); transition: border-color 0.2s; }
+        .outlet-input:focus { border-color: var(--navy); background: white; }
+        .outlet-input::placeholder { color: #B0B8C4; }
+        .run-btn { padding: 14px 28px; background: var(--red); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: background 0.2s; }
+        .run-btn:hover { background: #a93226; }
+        .run-btn:disabled { background: var(--muted); cursor: not-allowed; }
+        .suggestions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+        .suggestion { padding: 6px 14px; border: 1px solid var(--border); border-radius: 20px; font-size: 13px; color: var(--muted); cursor: pointer; transition: all 0.2s; background: white; }
+        .suggestion:hover { border-color: var(--navy); color: var(--navy); }
+        .home-features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 48px; }
+        .feature { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+        .feature-icon { font-size: 24px; margin-bottom: 10px; }
+        .feature-title { font-size: 14px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+        .feature-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+        /* LOADING */
+        #loading { max-width: 600px; margin: 0 auto; padding: 80px 24px; text-align: center; }
+        .loading-outlet { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+        .loading-subtitle { font-size: 14px; color: var(--muted); margin-bottom: 48px; }
+        .progress-steps { text-align: left; background: white; border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 32px; }
+        .step { display: flex; align-items: flex-start; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); opacity: 0.35; transition: opacity 0.4s; }
+        .step:last-child { border-bottom: none; }
+        .step.active { opacity: 1; }
+        .step.done { opacity: 0.7; }
+        .step-dot { width: 24px; height: 24px; border-radius: 50%; background: var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; margin-top: 1px; transition: background 0.4s; color: var(--ink); }
+        .step.active .step-dot { background: var(--red); color: white; animation: pulse 1.5s infinite; }
+        .step.done .step-dot { background: var(--green); color: white; }
+        @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(192,57,43,0.4); } 50% { box-shadow: 0 0 0 6px rgba(192,57,43,0); } }
+        .step-title { font-size: 14px; font-weight: 600; color: var(--navy); }
+        .step-detail { font-size: 12px; color: var(--muted); margin-top: 3px; }
+        .loading-note { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+        /* REPORT */
+        #report { display: flex; min-height: calc(100vh - 64px); }
+        .report-sidebar { width: 240px; flex-shrink: 0; background: var(--navy); padding: 32px 0; position: sticky; top: 64px; height: calc(100vh - 64px); overflow-y: auto; }
+        .sidebar-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); padding: 0 24px 12px; font-weight: 600; }
+        .sidebar-link { display: block; padding: 10px 24px; font-size: 13px; color: rgba(255,255,255,0.5); text-decoration: none; cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; }
+        .sidebar-link:hover { color: white; background: rgba(255,255,255,0.05); }
+        .sidebar-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 12px 24px; }
+        .sidebar-actions { padding: 24px; }
+        .action-btn { display: block; width: 100%; padding: 10px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; text-align: center; margin-bottom: 8px; transition: all 0.2s; border: none; }
+        .btn-primary { background: var(--red); color: white; }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.15) !important; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.18); }
+        .report-main { flex: 1; padding: 48px 56px; max-width: 900px; }
+        .report-header { border-bottom: 2px solid var(--border); padding-bottom: 32px; margin-bottom: 40px; }
+        .report-eyebrow { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--red); font-weight: 600; margin-bottom: 8px; }
+        .report-title { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+        .report-meta { font-size: 13px; color: var(--muted); }
+        .report-content { font-size: 15px; line-height: 1.8; color: #2D3748; }
+        .report-content h2 { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: var(--navy); margin: 40px 0 16px; padding-top: 40px; border-top: 1px solid var(--border); }
+        .report-content h2:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+        .report-content h3 { font-size: 17px; font-weight: 600; color: var(--navy); margin: 24px 0 10px; }
+        .report-content h4 { font-size: 15px; font-weight: 600; color: var(--ink); margin: 18px 0 8px; }
+        .report-content p { margin-bottom: 14px; }
+        .report-content ul, .report-content ol { padding-left: 20px; margin-bottom: 14px; }
+        .report-content li { margin-bottom: 6px; }
+        .report-content a { color: var(--red); text-decoration: none; border-bottom: 1px solid rgba(192,57,43,0.3); }
+        .report-content a:hover { border-color: var(--red); }
+        .report-content blockquote { border-left: 3px solid var(--red); padding: 12px 20px; background: rgba(192,57,43,0.04); border-radius: 0 6px 6px 0; margin: 16px 0; font-style: italic; color: #4A5568; }
+        .report-content table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+        .report-content th { background: var(--navy); color: white; padding: 10px 14px; text-align: left; font-weight: 500; font-size: 12px; }
+        .report-content td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+        .report-content tr:nth-child(even) td { background: rgba(0,0,0,0.02); }
+        .report-content strong { font-weight: 600; color: var(--navy); }
+        .report-content em { font-style: italic; color: #4A5568; }
+        .new-analysis { background: var(--red); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; margin-top: 48px; transition: background 0.2s; }
+        .new-analysis:hover { background: #a93226; }
+        .error-box { background: #FFF5F5; border: 1px solid #FED7D7; border-radius: 10px; padding: 24px; text-align: center; margin-top: 24px; }
+        .error-box h3 { color: var(--red); margin-bottom: 8px; }
+        .error-box p { color: #718096; font-size: 14px; }
+        .retry-btn { background: var(--red); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; margin-top: 16px; }
+        @media (max-width: 768px) { .report-sidebar { display: none; } .report-main { padding: 24px; } .home-features { grid-template-columns: 1fr; } .home-headline { font-size: 32px; } }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-brand">
+        <div class="header-logo">M</div>
+        <div>
+            <div class="header-title">Media Intelligence Agent</div>
+            <div class="header-subtitle">Autonomous Competitive Benchmarking</div>
+        </div>
+    </div>
+    <div class="header-badge">Ironhack AI Engineering · Module 3</div>
+</header>
+
+<!-- HOME -->
+<div id="home" class="screen active">
+    <div class="home-eyebrow">Competitive Intelligence · Powered by AI</div>
+    <h1 class="home-headline">Give it an outlet.<br>Get back a <span>validated</span> benchmark.</h1>
+    <p class="home-desc">The Media Intelligence Agent autonomously researches a named media outlet, benchmarks it against two competitors, tracks editorial drift over time, and generates a structured intelligence brief — validated by three independent AI evaluators using Krippendorff's Alpha.</p>
+    <div class="input-group">
+        <label class="input-label">Media Outlet Name</label>
+        <div class="input-row">
+            <input type="text" id="outletInput" class="outlet-input" placeholder="e.g. Der Spiegel, Reuters, BBC News..." autocomplete="off"/>
+            <button class="run-btn" id="runBtn" onclick="startAnalysis()">Run Analysis</button>
+        </div>
+        <div class="suggestions">
+            <span class="suggestion" onclick="setOutlet('Reuters')">Reuters</span>
+            <span class="suggestion" onclick="setOutlet('Der Spiegel')">Der Spiegel</span>
+            <span class="suggestion" onclick="setOutlet('The Guardian')">The Guardian</span>
+            <span class="suggestion" onclick="setOutlet('BBC News')">BBC News</span>
+            <span class="suggestion" onclick="setOutlet('Le Monde')">Le Monde</span>
+            <span class="suggestion" onclick="setOutlet('Financial Times')">Financial Times</span>
+        </div>
+    </div>
+    <div class="home-features">
+        <div class="feature"><div class="feature-icon">🔍</div><div class="feature-title">7 Data Sources</div><div class="feature-desc">Tavily, NewsAPI, Guardian, Wikipedia, Wayback Machine, RSS, GDELT</div></div>
+        <div class="feature"><div class="feature-icon">📊</div><div class="feature-title">Consensus Scoring</div><div class="feature-desc">3 independent AI evaluators · Krippendorff's Alpha · 6 dimensions</div></div>
+        <div class="feature"><div class="feature-icon">📈</div><div class="feature-title">Temporal Drift</div><div class="feature-desc">Editorial focus tracked across 30/90/180-day windows</div></div>
+    </div>
+</div>
+
+<!-- LOADING -->
+<div id="loading" class="screen">
+    <div class="loading-outlet" id="loadingOutlet">Researching...</div>
+    <div class="loading-subtitle">This takes 5–8 minutes. The agent is working autonomously.</div>
+    <div class="progress-steps">
+        <div class="step" id="step1"><div class="step-dot">1</div><div><div class="step-title">Identifying competitors</div><div class="step-detail">Wikipedia + LLM reasoning to find 2 closest rivals</div></div></div>
+        <div class="step" id="step2"><div class="step-dot">2</div><div><div class="step-title">Researching all 3 outlets</div><div class="step-detail">ReAct agent querying 7 data sources per outlet</div></div></div>
+        <div class="step" id="step3"><div class="step-dot">3</div><div><div class="step-title">Retrieving industry context</div><div class="step-detail">Pinecone RAG · 11 curated industry documents</div></div></div>
+        <div class="step" id="step4"><div class="step-dot">4</div><div><div class="step-title">Analysing temporal drift</div><div class="step-detail">Detecting emerging, fading and stable editorial themes</div></div></div>
+        <div class="step" id="step5"><div class="step-dot">5</div><div><div class="step-title">Consensus scoring</div><div class="step-detail">54 LLM evaluations · Krippendorff's Alpha per dimension</div></div></div>
+        <div class="step" id="step6"><div class="step-dot">6</div><div><div class="step-title">Generating report</div><div class="step-detail">Assembling scorecard, competitive position and drift analysis</div></div></div>
+    </div>
+    <p class="loading-note">The pipeline runs fully autonomously — no human input required between trigger and report.</p>
+</div>
+
+<!-- REPORT -->
+<div id="report" class="screen">
+    <nav class="report-sidebar">
+        <div class="sidebar-label">Report Sections</div>
+        <a class="sidebar-link" onclick="scrollToSection('Executive Summary')">Executive Summary</a>
+        <a class="sidebar-link" onclick="scrollToSection('Competitive Scorecard')">Competitive Scorecard</a>
+        <a class="sidebar-link" onclick="scrollToSection('Competitive Position')">Competitive Position</a>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-label">Outlet Analysis</div>
+        <div id="outletLinks"></div>
+        <div class="sidebar-divider"></div>
+        <a class="sidebar-link" onclick="scrollToSection('Contested')">Contested Dimensions</a>
+        <a class="sidebar-link" onclick="scrollToSection('Methodology')">Methodology</a>
+        <div class="sidebar-actions" style="margin-top:32px;">
+            <button class="action-btn btn-primary" onclick="downloadReport()">Download Report</button>
+            <button class="action-btn btn-secondary" onclick="newAnalysis()">+ New Analysis</button>
+        </div>
+    </nav>
+    <main class="report-main">
+        <div class="report-header">
+            <div class="report-eyebrow">Media Intelligence Brief</div>
+            <div class="report-title" id="reportTitle">Report</div>
+            <div class="report-meta" id="reportMeta"></div>
+        </div>
+        <div class="report-content" id="reportContent"></div>
+        <button class="new-analysis" onclick="newAnalysis()">Run Another Analysis</button>
+    </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<script>
+    const API_BASE = window.location.origin;
+    let currentOutlet = '';
+    let reportMarkdown = '';
+
+    function setOutlet(name) {
+        document.getElementById('outletInput').value = name;
+        document.getElementById('outletInput').focus();
+    }
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    function scrollToSection(text) {
+        const headings = document.querySelectorAll('#reportContent h2');
+        for (const h of headings) {
+            if (h.textContent.includes(text)) {
+                h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                return;
+            }
+        }
+    }
+
+    function startStepAnimation() {
+        const steps = ['step1','step2','step3','step4','step5','step6'];
+        const timings = [2, 25, 85, 140, 190, 330];
+        steps.forEach((id, i) => {
+            setTimeout(() => {
+                if (i > 0) {
+                    const prev = document.getElementById(steps[i-1]);
+                    prev.classList.remove('active');
+                    prev.classList.add('done');
+                    prev.querySelector('.step-dot').textContent = '✓';
+                }
+                document.getElementById(id).classList.add('active');
+            }, timings[i] * 1000);
+        });
+    }
+
+    async function startAnalysis() {
+        const outlet = document.getElementById('outletInput').value.trim();
+        if (!outlet) { document.getElementById('outletInput').focus(); return; }
+        currentOutlet = outlet;
+        document.getElementById('loadingOutlet').textContent = 'Analysing: ' + outlet;
+        document.getElementById('runBtn').disabled = true;
+        document.querySelectorAll('.step').forEach((s, i) => {
+            s.classList.remove('active', 'done');
+            s.querySelector('.step-dot').textContent = i + 1;
+        });
+        showScreen('loading');
+        startStepAnimation();
+        try {
+            const res = await fetch(API_BASE + '/research', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ outlet: outlet }),
+            });
+            if (!res.ok) { const e = await res.json(); throw new Error(e.detail || 'Pipeline failed'); }
+            const data = await res.json();
+            renderReport(data);
+        } catch(err) {
+            document.querySelector('.progress-steps').innerHTML = '<div class="error-box"><h3>Analysis Failed</h3><p>' + err.message + '</p><button class="retry-btn" onclick="newAnalysis()">Try Again</button></div>';
+        } finally {
+            document.getElementById('runBtn').disabled = false;
+        }
+    }
+
+    function renderReport(data) {
+        reportMarkdown = data.report;
+        const firstLine = reportMarkdown.split('\n')[0];
+        const title = firstLine.replace('# Media Intelligence Brief: ','').replace('# ','');
+        document.getElementById('reportTitle').textContent = title;
+        document.getElementById('reportMeta').textContent = 'Generated ' + (data.generated || '').split('T')[0] + ' · ' + Math.round(data.char_count/1000) + 'k characters · ' + data.outlet;
+        document.getElementById('reportContent').innerHTML = marked.parse(reportMarkdown);
+        const outletLinks = document.getElementById('outletLinks');
+        outletLinks.innerHTML = '';
+        document.querySelectorAll('#reportContent h2').forEach(h => {
+            if (h.textContent.includes('TARGET') || h.textContent.includes('COMPETITOR')) {
+                const link = document.createElement('a');
+                link.className = 'sidebar-link';
+                link.textContent = h.textContent.replace('🎯 TARGET','').replace('📊 COMPETITOR','').trim();
+                link.onclick = () => h.scrollIntoView({ behavior: 'smooth' });
+                outletLinks.appendChild(link);
+            }
+        });
+        showScreen('report');
+    }
+
+    function newAnalysis() { document.getElementById('outletInput').value = ''; showScreen('home'); }
+
+    function downloadReport() {
+        if (!reportMarkdown) return;
+        const blob = new Blob([reportMarkdown], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'media-intelligence-' + currentOutlet.toLowerCase().replace(/ /g,'_') + '.md';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    document.getElementById('outletInput').addEventListener('keydown', e => { if (e.key === 'Enter') startAnalysis(); });
+</script>
+</body>
+</html>

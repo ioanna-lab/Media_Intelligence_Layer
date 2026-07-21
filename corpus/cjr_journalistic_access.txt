@@ -1,0 +1,98 @@
+JOURNALISTIC ACCESS — THE POLITICS AND PRACTICE OF SOURCE RELATIONSHIPS
+Source: Columbia Journalism Review (CJR), Special Issue on Access
+Document type: RAG corpus — media industry context
+
+OVERVIEW
+
+This document covers the concept of journalistic access — how reporters gain proximity to power, the trade-offs involved, and the implications for editorial independence and credibility. Access is one of the most contested concepts in modern journalism, touching on questions of objectivity, source relationships, and the structural conditions that shape news coverage.
+
+---
+
+WHAT IS JOURNALISTIC ACCESS?
+
+Access in journalism refers to the proximity reporters have to the people, institutions, and events they cover. Having access means being able to speak directly with decision-makers, attend events closed to the public, receive advance information, and build relationships that produce exclusive or insider reporting.
+
+Access is valuable because it enables journalism that would otherwise be impossible — reporting from inside institutions, direct quotes from officials, and early information about decisions before they become public.
+
+But access comes with costs. The Columbia Journalism Review's special issue on access identified several key tensions:
+
+---
+
+THE ACCESS TRADE-OFF
+
+As Joan Didion wrote in 1988: "When we talk about the process, we are talking, increasingly, not about 'the democratic process,' or the general mechanism affording the citizens of a state a voice in its affairs, but the reverse: a mechanism seen as so specialized that access to it is correctly limited to its own professionals."
+
+The professionals Didion identified include everyone from Sunday show participants to media consultants, columnists, and issues advisers — "that handful of insiders who invent, year in and year out, the narrative of public life."
+
+This points to a structural problem: the journalists with the best access are often the most embedded in elite networks, which can compromise their ability to challenge those same elites.
+
+---
+
+MODERN ACCESS DYNAMICS
+
+The Access Hollywood tape case (the 2005 video of Donald Trump that leaked in October 2016) illustrates the complexity of access journalism. The tape represented genuine access — journalists and producers were present — but the norms of access journalism meant the content was not reported until it leaked. Billy Bush later reflected: "Along with Donald Trump and me, there were seven other guys present on the bus at the time, and every single one of us assumed we were listening to a crass standup act."
+
+This episode illustrates how access norms — the implicit rules governing what journalists do with off-the-record or ambient access — can suppress information of genuine public interest.
+
+---
+
+TMZ AND ALTERNATIVE ACCESS MODELS
+
+The rise of TMZ in political journalism represents a different access model. Harvey Levin, TMZ's founder, describes his approach: "Casting is 90 percent of it." TMZ's reporters approach political access "with a sense of guilelessness that most reporters do not possess," as media analyst Susie Banikarim wrote in CJR.
+
+This guilelessness enables a different kind of access — to the informal, unscripted moments that professional political journalists have been socialised to treat as off-limits. As Tim Miller of The Bulwark Podcast observed: "I think a lot of political reporters are used to just the way things work. It's like the water they swim in, so they don't write about it."
+
+The implication is that deep access can produce both more intimate reporting and more complicit reporting — depending on how it is managed.
+
+---
+
+THE WHITE HOUSE CORRESPONDENTS' ASSOCIATION
+
+The White House Correspondents' Association (WHCA) represents institutionalised access — a formal structure through which the press corps negotiates collective access to the executive branch.
+
+The WHCA model has been challenged by the Trump administration's aggressive posture toward journalists, including lawsuits against news organisations, investigations, arrests, and deportations of journalists. The WHCA's response has been described as "either shrewdly calculating in its restrained approach or shamefully feckless, projecting normalcy during an autocratic time."
+
+This debate reflects a broader tension in access journalism: does maintaining access relationships with hostile officials serve the public interest (by preserving channels of information), or does it normalise authoritarianism by conferring legitimacy through engagement?
+
+---
+
+ACCESS AND EDITORIAL INDEPENDENCE
+
+The risks of over-reliance on access are well-recognised within journalism. Jemele Hill, after six years covering Michigan State athletics for the Detroit Free Press, asked to change beats: "I was concerned that I was getting too chummy with the people I was covering. After a while, you start to feel the familiarity of complacency."
+
+Michael Wolff, author of Fire and Fury and other access-based books about the Trump White House, takes the opposite view: "I don't think that there is such a thing as too close."
+
+These competing positions reflect genuine professional disagreement about the role of access in journalism:
+
+PRO-ACCESS ARGUMENT: Information from inside institutions that cannot be obtained any other way serves the public interest, even if maintaining those channels requires compromising some critical distance.
+
+CRITICAL-ACCESS ARGUMENT: The dependence on source relationships structurally biases coverage toward institutional perspectives, silences dissent from sources who might not be re-admitted to the circle, and trains journalists to internalise the perspectives of those they cover.
+
+---
+
+IMPLICATIONS FOR MEDIA OUTLET ANALYSIS
+
+Access relationships are a useful lens for understanding editorial positioning:
+
+1. WHITE HOUSE / GOVERNMENT ACCESS: Outlets with strong government access relationships (through credentialed correspondents, press pools, briefing participation) tend to be more conservative in their coverage of government, not because of political alignment but because of structural access incentives.
+
+2. CORPORATE ACCESS: Financial journalists with strong corporate access relationships may be more deferential to corporate communications than those without such relationships.
+
+3. CELEBRITY AND ENTERTAINMENT ACCESS: As the Access Hollywood example shows, entertainment journalism has historically operated under strong access norms that constrain what reporters can publish.
+
+4. INVESTIGATIVE JOURNALISM: Investigative reporters typically sacrifice access in exchange for critical independence. Outlets with strong investigative traditions (Der Spiegel, Guardian, NYT investigations desk) accept that investigative stories will damage access relationships.
+
+5. INSIDER vs OUTSIDER POSITIONING: Some outlets explicitly position as outsiders to power (The Intercept, various independent outlets) and build their credibility on the access they deliberately forgo.
+
+---
+
+ACCESS IN THE DIGITAL AGE
+
+Social media has changed access dynamics significantly. Public figures can now communicate directly with audiences, bypassing traditional press intermediaries. This has:
+
+- Reduced the gatekeeper value of traditional journalism access
+- Created new forms of "access" through public social media posts (which require interpretation and context rather than access)
+- Increased the value of genuine off-the-record access that goes beyond what officials say publicly
+- Enabled journalists to build direct audience relationships that reduce dependence on institutional access for commercial survival
+
+The nondisclosure agreement that the Trump administration drafted to prohibit federal workers from sharing "confidential government information" represents an attempt to structurally restrict access — using legal instruments rather than just informal norms to control information flows.

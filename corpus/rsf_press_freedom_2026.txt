@@ -1,0 +1,58 @@
+RSF PRESS FREEDOM INDEX 2026 — OVERVIEW AND METHODOLOGY
+Source: Reporters Without Borders (RSF)
+Document type: RAG corpus — media industry context
+
+OVERVIEW
+
+The RSF Press Freedom Index ranks 180 countries and territories according to the level of freedom available to journalists. The index is produced annually by Reporters Without Borders (RSF) and measures the environment and conditions for practising journalism.
+
+The 2026 index shows that press freedom conditions remain difficult across large parts of the world. Norway ranks first with a score of 92.72, followed by the Netherlands (88.92) and Estonia (88.54). Denmark (88.47) and Sweden (87.61) complete the top five.
+
+The United Kingdom ranks 18th with a score of 79.45, reflecting ongoing concerns about media concentration and economic pressures on public interest journalism. Germany ranks 14th with a score of 82.17.
+
+SCORING METHODOLOGY
+
+The RSF Press Freedom Index score is calculated across five indicators:
+
+1. Political context: The degree to which government and political actors interfere with or exert pressure on media organisations and journalists. This includes direct censorship, self-censorship driven by fear, and political influence over editorial decisions.
+
+2. Legal framework: The quality of legislation that governs press freedom. This covers laws protecting journalists, shield laws for sources, defamation laws that could be used to silence reporting, and the legal status of public broadcasters.
+
+3. Economic context: The financial health and independence of media organisations. Advertising market concentration, ownership transparency, and dependence on state advertising are all assessed. Economic precarity is a major driver of media vulnerability.
+
+4. Sociocultural context: Public attitudes toward journalists, the prevalence of self-censorship due to social pressure, and the degree to which minority or marginalised communities are represented in media.
+
+5. Safety: Physical safety of journalists, including rates of imprisonment, assault, harassment, and murder. Countries where journalists face direct physical threats score significantly lower.
+
+MEDIA CONCENTRATION TRENDS
+
+One of the most significant structural pressures identified in the 2026 index is media ownership concentration. Across Europe and North America, a small number of large media groups control an increasing share of news output. This has implications for editorial diversity, as a consolidated ownership base can lead to homogenised editorial lines and reduced investigative capacity.
+
+The index notes that digital platform dominance — particularly by search engines and social media — has further disrupted the economic models of traditional news organisations. Advertising revenue has migrated to platforms, weakening the financial foundations of independent journalism.
+
+PUBLIC BROADCASTERS
+
+Public broadcasters occupy a complex position in the press freedom landscape. Organisations such as the BBC (UK), ARD and ZDF (Germany), France Télévisions (France), and NHK (Japan) are assessed on the degree of editorial independence they maintain from government. Funding mechanisms that insulate public broadcasters from political interference are considered positive indicators.
+
+However, public broadcasters in several countries face increasing political pressure. Governing parties have attempted to influence appointments to editorial boards, reduce funding, or restructure mandates in ways that constrain independent reporting.
+
+DIGITAL TRANSITION AND PRESS FREEDOM
+
+The shift to digital publishing has created both opportunities and risks for press freedom. On one hand, lower barriers to entry have enabled new independent outlets to emerge. On the other hand, platform dependency means that editorial reach is increasingly mediated by algorithmic systems controlled by private companies with limited transparency or accountability.
+
+The index identifies algorithmic amplification of misinformation as a secondary threat to press freedom — not through direct censorship but through the economic marginalisation of fact-based journalism relative to sensationalist content.
+
+KEY FINDINGS FOR WESTERN EUROPE
+
+Western Europe remains the region with the strongest press freedom conditions globally. However, the index identifies several concerning trends:
+
+- Increasing use of strategic lawsuits against public participation (SLAPPs) to silence investigative journalists
+- Declining advertising revenue pressuring regional and local newsrooms
+- Growing polarisation of media consumption along political lines
+- Concentration of digital news distribution in the hands of a small number of platform companies
+
+IMPLICATIONS FOR MEDIA OUTLET ANALYSIS
+
+When assessing a media outlet's competitive position and editorial integrity, the RSF framework provides a useful lens. Outlets operating in high-press-freedom environments (score above 80) generally face fewer structural constraints on editorial independence. Outlets in lower-scoring environments may face political, legal, or economic pressures that shape coverage decisions.
+
+The editorial positioning of major international outlets — Reuters, BBC, Der Spiegel, The Guardian, Le Monde — reflects both their national press freedom context and their own institutional commitments to editorial independence.
