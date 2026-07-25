@@ -1,0 +1,530 @@
+{
+  "name": "Media Intelligence Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "media-intelligence",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "e60880b9-85b4-4905-a910-427f0340b164",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -384,
+        1120
+      ],
+      "webhookId": "85d5f245-c8d3-4066-9aa8-ebdb438b66f7"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body || $json;\nconst outlet = (body.outlet || '').trim();\nconst recipient = (body.recipient_email || '').trim();\nconst force_refresh = body.force_refresh || false;\n\nif (!outlet) {\n  throw new Error('outlet is required. Send: {\"outlet\": \"Reuters\", \"recipient_email\": \"you@email.com\"}');\n}\n\nreturn [{\n  outlet,\n  recipient_email: recipient,\n  force_refresh,\n  outlet_slug: outlet.toLowerCase().replace(/ /g, '_')\n}];"
+      },
+      "id": "49e31916-5ca5-4532-b2a3-75d59a093861",
+      "name": "Parse Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        1120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.notion.com/v1/databases/3a6c7c0e0a7780c48213db9209ce20a9/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "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"
+            },
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"filter\": {\n    \"property\": \"Outlet\",\n    \"title\": { \"equals\": \"{{ $('Parse Input').first().json.outlet }}\" }\n  },\n  \"sorts\": [{\"property\": \"Generated\", \"direction\": \"descending\"}],\n  \"page_size\": 1\n}",
+        "options": {}
+      },
+      "id": "d932827a-9452-4802-82c5-c3b97c60deb8",
+      "name": "Check Notion",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        64,
+        1120
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = $json.results || [];\nconst outlet = $('Parse Input').first().json.outlet;\nconst force_refresh = $('Parse Input').first().json.force_refresh;\n\nif (results.length === 0 || force_refresh) {\n  return [{ has_recent: false, outlet, source: 'fresh', notion_url: '', overall_score: 0, competitors: '', top_dimension: '' }];\n}\n\nconst page = results[0];\nconst props = page.properties || {};\nconst generated = props.Generated?.date?.start || '';\nconst notion_url = page.url || '';\nconst overall_score = props['Overall Score']?.number || 0;\nconst competitors = props.Competitors?.rich_text?.[0]?.text?.content || '';\nconst top_dim = props['Top Dimension']?.rich_text?.[0]?.text?.content || '';\n\nconst generatedDate = new Date(generated);\nconst daysDiff = (Date.now() - generatedDate.getTime()) / (1000 * 60 * 60 * 24);\nconst is_recent = daysDiff <= 7;\n\nreturn [{\n  has_recent: is_recent,\n  outlet,\n  source: is_recent ? 'cache' : 'fresh',\n  notion_url,\n  overall_score,\n  competitors,\n  top_dimension: top_dim,\n  generated,\n  days_old: Math.round(daysDiff)\n}];"
+      },
+      "id": "8dc92702-26b1-4499-93e1-91cf9db18fe4",
+      "name": "Check Cache",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        288,
+        1120
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cache-hit",
+              "leftValue": "={{ $json.has_recent }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "68e6ac8d-b2b8-4129-a744-3b5d674cef88",
+      "name": "Report in Notion?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        496,
+        1120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://gloater-unrevised-extradite.ngrok-free.dev/research",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "ngrok-skip-browser-warning",
+              "value": "true"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"outlet\": \"{{ $('Parse Input').first().json.outlet }}\" }",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "718f3aa2-638b-4e06-a706-fb9e72577b4f",
+      "name": "Start Pipeline",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        1232
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Store job_id for polling\nconst job_id = $json.job_id;\nif (!job_id) throw new Error('No job_id returned from pipeline');\nreturn [{ job_id, outlet: $('Parse Input').first().json.outlet }];"
+      },
+      "id": "774f02d9-4e0f-413c-b1e9-7f197e963315",
+      "name": "Store Job ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        944,
+        1232
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://gloater-unrevised-extradite.ngrok-free.dev/job/{{ $('Store Job ID').first().json.job_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "ngrok-skip-browser-warning",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b0a9ad47-66c8-4dce-898c-4eb188ba1b25",
+      "name": "Poll Job Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1168,
+        1232
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "job-done",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "complete",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "7c0a5bdd-e729-46ef-9c07-c018b551074a",
+      "name": "Job Complete?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1376,
+        1232
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "id": "4c53cedc-6d74-4492-8170-be65098fd0e8",
+      "name": "Wait 10s",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1600,
+        1360
+      ],
+      "webhookId": "wait-poll"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract data from completed job or cache\nconst fromCache = $('Check Cache').first().json.has_recent;\n\nlet outlet, report, notion_url, overall_score, competitors, source;\n\nif (fromCache) {\n  const cache = $('Check Cache').first().json;\n  outlet = cache.outlet;\n  notion_url = cache.notion_url;\n  overall_score = cache.overall_score;\n  competitors = cache.competitors;\n  source = 'cache';\n  report = '';\n} else {\n  const job = $('Poll Job Status').first().json;\n  outlet = job.outlet || $('Parse Input').first().json.outlet;\n  report = job.report || '';\n  notion_url = job.notion_url || '';\n  overall_score = job.overall_score || 0;\n  competitors = job.competitors || '';\n  source = 'fresh';\n}\n\n// Extract executive summary from report\nlet summary = '';\nif (report) {\n  const lines = report.split('\\n');\n  let inExec = false;\n  for (const line of lines) {\n    if (line.includes('## Executive Summary')) { inExec = true; continue; }\n    if (inExec && line.startsWith('## ')) break;\n    if (inExec && line.trim()) summary += line.trim() + ' ';\n    if (summary.length > 500) break;\n  }\n}\n\nreturn [{ outlet, summary: summary.trim(), notion_url, overall_score, competitors, source, report }];"
+      },
+      "id": "66bfb8f6-8241-4c18-9265-68dd851223d5",
+      "name": "Extract Report Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        1120
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const outlet = $json.outlet;\nconst summary = $json.summary || 'See full report in Notion.';\nconst notion_url = $json.notion_url;\nconst score = $json.overall_score;\nconst competitors = $json.competitors;\nconst source = $json.source;\nconst date = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});\nconst sourceLabel = source === 'cache' ? 'Retrieved from Notion library' : 'Freshly generated';\n\nconst html = `<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><style>\nbody{font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif;background:#F8F5EF;margin:0;padding:0;}\n.wrap{max-width:620px;margin:0 auto;background:#fff;}\n.hdr{background:#0D1B2A;padding:32px 40px;border-bottom:3px solid #C0392B;}\n.logo{font-family:Georgia,serif;font-size:22px;color:#fff;font-weight:700;margin-bottom:4px;}\n.tag{font-size:10px;color:#8B92A5;letter-spacing:1.5px;text-transform:uppercase;}\n.body{padding:36px 40px;}\n.ey{font-size:10px;color:#C0392B;letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:10px;}\n.ot{font-family:Georgia,serif;font-size:32px;color:#0D1B2A;font-weight:700;margin-bottom:6px;}\n.mt{font-size:13px;color:#8B92A5;margin-bottom:28px;}\n.st{font-size:11px;font-weight:700;color:#8B92A5;letter-spacing:1.5px;text-transform:uppercase;margin:28px 0 12px;}\n.sum{font-size:15px;line-height:1.75;color:#2D3748;background:#F8F5EF;padding:20px 24px;border-radius:8px;border-left:4px solid #C0392B;}\n.sc{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #E2DDD5;}\n.sl{font-size:14px;color:#4A5568;}.sv{font-size:18px;font-weight:700;color:#0D1B2A;}\n.btn{display:inline-block;background:#C0392B;color:#fff!important;padding:14px 28px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:700;margin-top:8px;}\n.bdg{display:inline-block;background:rgba(26,122,74,.1);color:#1A7A4A;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:700;margin-bottom:20px;}\n.ft{background:#F8F5EF;padding:24px 40px;border-top:1px solid #E2DDD5;font-size:12px;color:#8B92A5;text-align:center;line-height:1.6;}\n</style></head><body>\n<div class=\"wrap\">\n  <div class=\"hdr\"><div class=\"logo\">Media Intelligence Agent</div><div class=\"tag\">Autonomous Competitive Benchmarking</div></div>\n  <div class=\"body\">\n    <div class=\"ey\">Intelligence Brief · ${sourceLabel}</div>\n    <div class=\"ot\">${outlet}</div>\n    <div class=\"mt\">${date}</div>\n    ${competitors ? `<div class=\"bdg\">vs ${competitors}</div>` : ''}\n    <div class=\"st\">Executive Summary</div>\n    <div class=\"sum\">${summary}</div>\n    ${score ? `<div class=\"st\">Overall Score</div><div class=\"sc\"><div class=\"sl\">Competitive Score</div><div class=\"sv\">${Number(score).toFixed(2)}/5</div></div>` : ''}\n    <div class=\"st\">Full Report</div>\n    ${notion_url ? `<a class=\"btn\" href=\"${notion_url}\">Open in Notion →</a>` : '<p style=\"color:#8B92A5;font-size:14px\">Report saved to your reports library.</p>'}\n  </div>\n  <div class=\"ft\">Generated by Media Intelligence Agent · Ironhack AI Engineering Module 3<br>Produced autonomously using 7 data sources and 54 LLM evaluations.</div>\n</div></body></html>`;\n\nreturn [{\n  subject: `Media Intelligence Brief: ${outlet}`,\n  html_body: html,\n  recipient: $('Parse Input').first().json.recipient_email,\n  outlet,\n  notion_url\n}];"
+      },
+      "id": "9334a22e-6def-4cac-a624-afe26e715411",
+      "name": "Build Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1824,
+        1120
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "has-email",
+              "leftValue": "={{ $json.recipient }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "efdb74f5-c06d-45d2-adec-67982ecbaefc",
+      "name": "Has Recipient?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2048,
+        1120
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.recipient }}",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.html_body }}",
+        "options": {}
+      },
+      "id": "f622c1a1-27fd-4cd5-a50c-f5df72f91d6a",
+      "name": "Send Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2256,
+        1008
+      ],
+      "webhookId": "942d4405-f166-4442-95fd-2a5db49317bb",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "J922OAcxeHf34iF1",
+          "name": "Gmail account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({\n  status: 'success',\n  outlet: $('Build Email').first().json.outlet,\n  recipient: $('Parse Input').first().json.recipient_email,\n  notion_url: $('Build Email').first().json.notion_url,\n  source: $('Extract Report Data').first().json.source,\n  message: 'Brief delivered to ' + $('Parse Input').first().json.recipient_email\n}) }}",
+        "options": {}
+      },
+      "id": "559cbdd5-63b6-4ac9-a359-83551c718e9a",
+      "name": "Respond Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2480,
+        1008
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({\n  status: 'saved',\n  outlet: $('Build Email').first().json.outlet,\n  message: 'No recipient email — report saved to Notion only.',\n  notion_url: $('Build Email').first().json.notion_url\n}) }}",
+        "options": {}
+      },
+      "id": "96c779d0-edb1-4f8d-8c52-df14e34a9cd7",
+      "name": "Respond No Email",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2256,
+        1232
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Input": {
+      "main": [
+        [
+          {
+            "node": "Check Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Notion": {
+      "main": [
+        [
+          {
+            "node": "Check Cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Cache": {
+      "main": [
+        [
+          {
+            "node": "Report in Notion?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Report in Notion?": {
+      "main": [
+        [
+          {
+            "node": "Extract Report Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Start Pipeline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Pipeline": {
+      "main": [
+        [
+          {
+            "node": "Store Job ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Job ID": {
+      "main": [
+        [
+          {
+            "node": "Poll Job Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Poll Job Status": {
+      "main": [
+        [
+          {
+            "node": "Job Complete?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Complete?": {
+      "main": [
+        [
+          {
+            "node": "Extract Report Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 10s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 10s": {
+      "main": [
+        [
+          {
+            "node": "Poll Job Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Report Data": {
+      "main": [
+        [
+          {
+            "node": "Build Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Email": {
+      "main": [
+        [
+          {
+            "node": "Has Recipient?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Recipient?": {
+      "main": [
+        [
+          {
+            "node": "Send Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond No Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Gmail": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "3cef4607-3539-41a2-9beb-e512e0a35d55",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "830695148bd1ae79a7685a5d7f1fa337ea0c44b5e0b04bf9816d60425264c85f"
+  },
+  "id": "UU2pXxDPZ1XApern",
+  "tags": []
+}

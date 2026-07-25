@@ -37,7 +37,7 @@ from src.tools.wayback_tool  import get_wayback_profile
 from src.tools.guardian_tool import get_guardian_historical_windows
 from src.tools.rss_tool import get_rss_articles
 from src.scoring.consensus import score_outlet
-from src.report.generator import generate_report, save_report
+from src.report.generator import generate_report, save_report, save_to_notion
 
 load_dotenv()
 
@@ -405,9 +405,13 @@ def report_node(state: AgentState) -> dict:
     print(f"{'='*60}")
 
     try:
-        report = generate_report(state)
+        report     = generate_report(state)
         save_report(report, state["outlet_name"])
-        return {"report": report}
+        report_url = state.get("report_url", "")
+        notion_url = save_to_notion(state, report, report_url)
+        if notion_url:
+            print(f"[node6] ✓ Report saved to Notion: {notion_url}")
+        return {"report": report, "notion_url": notion_url or ""}
     except Exception as e:
         print(f"[node6] ERROR: {e}")
         return {

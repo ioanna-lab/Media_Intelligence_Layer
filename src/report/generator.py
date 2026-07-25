@@ -635,3 +635,23 @@ Return as JSON with these exact keys:
             lines.append("")
 
     return "\n".join(lines)
+
+
+def save_to_notion(state: dict, report: str, report_url: str = "") -> str | None:
+    """
+    Save the report to Notion after generation.
+    Returns the Notion page URL or None if Notion is not configured.
+    """
+    try:
+        from src.integrations.notion_client import save_report_to_notion
+        notion_url = save_report_to_notion(
+            outlet_name = state["outlet_name"],
+            report      = report,
+            scores      = state.get("scores", {}),
+            competitors = state.get("competitors", []),
+            report_url  = report_url,
+        )
+        return notion_url
+    except Exception as e:
+        print(f"[generator] Notion save skipped: {e}")
+        return None

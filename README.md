@@ -209,12 +209,26 @@ python3 src/run_agent.py --outlet "Reuters"
 python3 src/run_agent.py --outlet "Der Spiegel" --output markdown
 ```
 
-**Via FastAPI service:**
+**Via FastAPI service (local):**
 ```bash
 python3 src/app.py
-# Service starts at http://localhost:8000
-# Interactive docs at http://localhost:8000/docs
+# UI at:           http://localhost:8000
+# API docs at:     http://localhost:8000/docs
+# Health check at: http://localhost:8000/health
 ```
+
+**Via ngrok (public URL, shareable):**
+```bash
+# Terminal 1 — start the server
+python3 src/app.py
+
+# Terminal 2 — open a public tunnel
+ngrok http 8000
+# → https://gloater-unrevised-extradite.ngrok-free.dev
+```
+
+**Via Render (permanent deployment):**
+See [Deployment](#deployment) section below.
 
 Reports are saved to `/reports/` as Markdown files.
 
@@ -254,10 +268,17 @@ Each outlet is scored across 6 dimensions using **consensus scoring with inter-r
 | Competitive Differentiation | Unique editorial voice, exclusive content, brand strength |
 
 **How consensus scoring works:**
-1. 3 independent LLM evaluations per dimension (temperatures: 0.1, 0.5, 0.9)
+1. 3 independent LLM evaluations per dimension using **3 different model architectures:**
+   - GPT-4o-mini / conservative analyst perspective (temperature 0.3)
+   - Claude Sonnet 4.6 / progressive editorial perspective (temperature 0.5)
+   - GPT-4o-mini / industry veteran perspective (temperature 0.9)
 2. Krippendorff's Alpha calculated across the 3 scores
-3. Agreement classified: HIGH (α > 0.6), MODERATE (0.4–0.6), CONTESTED (< 0.4)
-4. CONTESTED dimensions flagged for human review
+3. Agreement classified:
+   - **CONSENSUS** (α = 1.0) — all evaluators agree, unambiguous signal
+   - **HIGH** (α ≥ 0.6) — evaluators broadly agree
+   - **MODERATE** (α 0.4–0.6) — some divergence
+   - **CONTESTED** (α < 0.4) — significant disagreement, flagged as analytically contested
+4. Contested dimensions are not failures — they reveal where genuine expert opinion diverges
 
 This applies the academic **Inter-Annotator Agreement (IAA)** framework to AI scoring, making every score auditable and transparent about its own uncertainty.
 
@@ -283,6 +304,100 @@ Topic clusters are extracted by LLM from article titles, then compared using Pyt
 - **Fading:** topics strong in Window C, absent in Window A
 - **Stable:** topics consistent across all three windows
 - **Volume shift:** article count change across windows
+
+---
+
+## Deployment
+
+### Option A — Local + ngrok (demo-ready, no server needed)
+
+**What this gives you:** A public URL anyone can open from any device, tunnelled to your local machine. Free, takes 30 seconds to set up.
+
+**Prerequisites:** ngrok installed and authtoken configured (one-time setup).
+
+**First-time setup:**
+```bash
+# Install ngrok (macOS)
+brew install ngrok/ngrok/ngrok
+
+# Register at https://dashboard.ngrok.com and get your authtoken
+ngrok config add-authtoken YOUR_AUTHTOKEN
+```
+
+**Every time you want a public URL:**
+```bash
+# Terminal 1 — start the pipeline server
+python3 src/app.py
+
+# Terminal 2 — open the tunnel
+ngrok http 8000
+```
+
+ngrok prints your public URL:
+```
+Forwarding   https://gloater-unrevised-extradite.ngrok-free.dev -> http://localhost:8000
+```
+
+This URL is now accessible from anywhere. Share it with your instructor, a colleague, or open it on your phone. The pipeline runs on your local machine but is reachable globally.
+
+**Important notes:**
+- Keep both terminals open while the demo is running
+- The URL `gloater-unrevised-extradite.ngrok-free.dev` is your stable named URL (persists across restarts when logged in)
+- Free tier: 1 concurrent tunnel, no custom domain
+- If you see "invalid token" errors: run `ngrok config add-authtoken YOUR_TOKEN` again
+
+---
+
+### Option B — Render (permanent deployment, always-on)
+
+**What this gives you:** A permanent public URL that works even when your laptop is off. Free tier is sufficient for a capstone project.
+
+**Steps:**
+
+1. Push your project to GitHub:
+```bash
+git init
+git add .
+git commit -m "Initial deployment"
+git remote add origin https://github.com/ioannarenta/media-intelligence-agent.git
+git push -u origin main
+```
+
+2. Go to `https://render.com` → **New** → **Web Service**
+
+3. Connect your GitHub repository
+
+4. Render detects `render.yaml` automatically. Confirm:
+   - **Build command:** `pip install -r requirements.txt`
+   - **Start command:** `python src/app.py`
+
+5. Add all environment variables in the **Environment** tab:
+   - `OPENAI_API_KEY`
+   - `ANTHROPIC_API_KEY`
+   - `PINECONE_API_KEY`
+   - `PINECONE_INDEX_NAME` = `media-intelligence`
+   - `TAVILY_API_KEY`
+   - `NEWSAPI_KEY`
+   - `GUARDIAN_API_KEY`
+
+6. Click **Deploy**. Your app will be live at:
+   `https://media-intelligence-agent.onrender.com`
+
+**Important notes:**
+- Free tier spins down after 15 minutes of inactivity (first request takes ~30s to wake up)
+- Paid tier ($7/month) keeps it always-on
+- The `render.yaml` file in the project root configures everything automatically
+
+---
+
+### Which option to use for the presentation
+
+| Scenario | Recommendation |
+|----------|---------------|
+| Live demo on your own laptop | Local (`python3 src/app.py`) |
+| Sharing with instructor remotely | ngrok tunnel |
+| Permanent URL for submission | Render free tier |
+| Production use | Render paid tier or Railway |
 
 ---
 
@@ -374,6 +489,17 @@ When all 3 LLM evaluations agree perfectly (e.g. all return 4.0), Krippendorff's
 ### RSS SSL certificates
 Some outlets use HTTPS feeds with self-signed or unverified certificates. The RSS tool includes an SSL fallback handler. HTTP feed URLs are used where available (BBC, Reuters).
 
+### Paywalled outlets with no public RSS
+The Times and The Independent operate behind hard paywalls and do not publish public RSS feeds. The RSS tool returns empty results for these outlets gracefully. Research for these outlets relies on Guardian API historical windows and Wikipedia instead.
+
+### Multi-model consensus scoring
+The consensus scoring framework uses three different model architectures:
+- **Evaluator 1:** gpt-4o-mini (conservative analytical perspective, temperature 0.3)
+- **Evaluator 2:** claude-sonnet-4-6 (progressive editorial perspective, temperature 0.5)
+- **Evaluator 3:** gpt-4o-mini (industry veteran perspective, temperature 0.9)
+
+Dimensions showing α = 1.0 across all evaluators indicate **strong consensus** — the outlet's position on that dimension is unambiguous. Dimensions with α < 0.4 are flagged as **analytically contested** — this reflects genuine expert disagreement, not a system failure. These are the most nuanced dimensions and warrant human analyst judgment.
+
 ### GDELT rate limiting -- development environment fallback
 GDELT enforces 1 request per 5 seconds and applies extended blocks (15-60 minutes) when limits are exceeded. During development, repeated testing exhausted the allowed request rate. The pipeline falls back to **Guardian API for all historical windows** (30d/90d/180d), which is unlimited and proven reliable.
 
@@ -410,3 +536,75 @@ GDELT tools (`gdelt_tool.py`, `gdelt_cache.py`) remain in the codebase and will 
 [LinkedIn](https://linkedin.com/in/ioannarenta) · [GitHub](https://github.com/ioannarenta)
 
 *Ironhack AI Engineering Programme · Module 3 Capstone · July 2026*
+
+---
+
+## N8N Integration
+
+### Workflow overview
+
+The N8N workflow orchestrates the full pipeline end-to-end:
+
+```
+Webhook (POST)
+    → Parse Input (validate)
+    → Check Notion (existing report?)
+    → Check Cache (< 7 days old?)
+        ├── YES → serve from cache
+        └── NO  → Start Pipeline (POST /research)
+                  → Poll Job Status every 30s
+                  → Job complete
+    → Extract Report Data
+    → Build HTML Email
+        ├── recipient provided → Send Gmail → Respond
+        └── no recipient      → Respond (Notion only)
+```
+
+### Import
+
+1. Open N8N → New Workflow → `...` → Import from file
+2. Select `n8n/workflow.json`
+3. Update the **Check Notion** node with your credentials:
+   - URL: `https://api.notion.com/v1/databases/YOUR_DB_ID/query`
+   - Authorization header: `Bearer YOUR_NOTION_TOKEN`
+4. Update **Start Pipeline** and **Poll Job Status** URLs to your ngrok or Render URL
+5. Connect your Gmail credential to the **Send Gmail** node
+6. Activate the workflow
+
+### Trigger
+
+```bash
+# Research + email delivery
+curl -X POST https://YOUR_N8N_URL/webhook/media-intelligence \
+  -H "Content-Type: application/json" \
+  -d '{
+    "outlet": "Reuters",
+    "recipient_email": "analyst@company.com"
+  }'
+
+# Research + Notion only (no email)
+curl -X POST https://YOUR_N8N_URL/webhook/media-intelligence \
+  -H "Content-Type: application/json" \
+  -d '{"outlet": "BBC News"}'
+
+# Force fresh run (ignore 7-day cache)
+curl -X POST https://YOUR_N8N_URL/webhook/media-intelligence \
+  -H "Content-Type: application/json" \
+  -d '{"outlet": "Reuters", "force_refresh": true}'
+```
+
+### Response
+
+```json
+{
+  "status": "success",
+  "outlet": "Reuters",
+  "recipient": "analyst@company.com",
+  "notion_url": "https://notion.so/...",
+  "source": "cache",
+  "message": "Brief delivered to analyst@company.com"
+}
+```
+
+### Cache behaviour
+Reports are cached in Notion for 7 days. If a report for the requested outlet exists and is less than 7 days old, the workflow serves it from Notion instead of running the full pipeline. Use `force_refresh: true` to override.

@@ -878,3 +878,122 @@ In production with controlled request rates:
 | 90 days | Guardian API | — |
 | 180 days | Guardian API | — |
 | Wayback snapshots | Wayback Machine CDX API | — |
+
+---
+
+## Deployment Setup
+**Completed: July 20, 2026**
+
+### Web UI
+
+Built `src/web/index.html` -- a single-page application served by FastAPI at `/`.
+
+Three screens:
+- **Home:** Clean input, outlet suggestions, feature cards
+- **Loading:** Animated step-by-step progress (6 steps, timed to match pipeline)
+- **Report:** Full report rendered with sticky sidebar navigation, download button
+
+Key design decisions:
+- Fluid layout: fills any screen width, no fixed max-width constraint
+- Sticky header: `position: sticky; top: 0; z-index: 200` -- stays in place on scroll
+- Sidebar: `position: sticky; top: var(--header-h)` -- independent scroll from main content
+- Visual hierarchy: h2 serif + border, h3 red left border, h4 background pill, coloured alpha values
+- Alpha highlighting: GREEN for HIGH/✓, AMBER for MODERATE, RED for CONTESTED
+
+### Option A -- ngrok (demo-ready)
+
+**URL:** `https://gloater-unrevised-extradite.ngrok-free.dev`
+
+**Setup (one-time):**
+```bash
+ngrok config add-authtoken YOUR_TOKEN
+# Token at: https://dashboard.ngrok.com/get-started/your-authtoken
+```
+
+**Every session:**
+```bash
+# Terminal 1
+python3 src/app.py
+
+# Terminal 2
+ngrok http 8000
+```
+
+The stable named URL persists across restarts when logged in to ngrok.
+
+### Option B -- Render (permanent)
+
+`render.yaml` in project root configures everything.
+
+Steps: push to GitHub → Render → New Web Service → connect repo → add env vars → deploy.
+
+URL pattern: `https://media-intelligence-agent.onrender.com`
+
+Free tier: spins down after 15min inactivity (30s cold start).
+
+---
+
+## N8N Workflow
+**Completed: July 25, 2026**
+
+### Architecture decision
+N8N Cloud does not support Execute Command node. Pipeline is called via HTTP Request to the FastAPI service instead. This is cleaner architecture -- N8N is the orchestration layer, Python is the intelligence layer.
+
+### Workflow file
+`n8n/workflow.json` -- import directly into N8N
+
+### Nodes (in order)
+
+| Node | Type | Purpose |
+|------|------|---------|
+| Webhook | Webhook | Receives POST /media-intelligence |
+| Parse Input | Code | Validates outlet + recipient_email |
+| Check Notion | HTTP Request | Queries Notion database for existing report |
+| Check Cache | Code | Checks if report < 7 days old |
+| Report in Notion? | IF | Routes: cache hit → Extract Data, miss → pipeline |
+| Start Pipeline | HTTP Request | POST /research → returns job_id instantly |
+| Store Job ID | Code | Extracts job_id from response |
+| Poll Job Status | HTTP Request | GET /job/{job_id} every 30 seconds |
+| Job Complete? | IF | Routes: complete → Extract Data, running → Wait |
+| Wait 30s | Wait | Waits 30 seconds before polling again |
+| Extract Report Data | Code | Pulls summary + scores from report or cache |
+| Build Email | Code | Generates professional HTML email |
+| Has Recipient? | IF | Routes: email provided → Gmail, none → Notion only |
+| Send Gmail | Gmail | Sends formatted HTML brief to recipient |
+| Respond Success | Respond to Webhook | Returns success JSON |
+| Respond No Email | Respond to Webhook | Returns saved-to-Notion JSON |
+
+### Trigger
+```bash
+# With email delivery
+curl -X POST https://ac-pt-26-04-14.n8n.irn.hk/webhook/media-intelligence \
+  -H "Content-Type: application/json" \
+  -d '{"outlet": "Reuters", "recipient_email": "ioanna@irenta.io"}'
+
+# Without email (Notion only)
+curl -X POST https://ac-pt-26-04-14.n8n.irn.hk/webhook/media-intelligence \
+  -H "Content-Type: application/json" \
+  -d '{"outlet": "Reuters"}'
+
+# Force fresh run (ignore cache)
+curl -X POST https://ac-pt-26-04-14.n8n.irn.hk/webhook/media-intelligence \
+  -H "Content-Type: application/json" \
+  -d '{"outlet": "Reuters", "force_refresh": true, "recipient_email": "ioanna@irenta.io"}'
+```
+
+### Cache logic
+- Report found in Notion AND < 7 days old → serve from cache (fast path, no pipeline)
+- Report not found OR > 7 days old → run full pipeline (5-8 minutes)
+- `force_refresh: true` → always run pipeline regardless of cache
+
+### Polling strategy
+- Pipeline returns job_id immediately (< 1 second)
+- N8N polls GET /job/{job_id} every 30 seconds
+- Maximum ~14 polls for a 7-minute run
+- On complete → extract data → build email → send
+
+### Important notes
+- Notion credentials hardcoded in Check Notion node (N8N Cloud plan has no Variables feature)
+- ngrok must be running for N8N to reach the local FastAPI
+- Production deployment on Render would use a permanent URL instead of ngrok
+- Wait node set to 30 seconds (not 10) to avoid excessive polling

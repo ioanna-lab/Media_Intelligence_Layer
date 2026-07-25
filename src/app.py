@@ -30,7 +30,10 @@ from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+import uuid
+import threading
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
@@ -50,6 +53,27 @@ app = FastAPI(
     ),
     version="1.0.0",
 )
+
+# ── In-memory job store ──────────────────────────────────
+# Stores pipeline jobs by job_id so the UI can poll for results
+# Key: job_id (str), Value: {status, report, notion_url, error}
+_jobs: dict = {}
+
+# ── In-memory job store ──────────────────────────────────
+# CORS + ngrok interstitial bypass
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.middleware("http")
+async def add_ngrok_header(request: Request, call_next):
+    """Bypass ngrok browser warning interstitial for all responses."""
+    response = await call_next(request)
+    response.headers["ngrok-skip-browser-warning"] = "true"
+    return response
 
 # Serve the web UI
 UI_PATH = Path(__file__).parent / "web" / "index.html"
@@ -80,6 +104,7 @@ class ResearchResponse(BaseModel):
     saved_to:   str
     generated:  str
     char_count: int
+    notion_url: str = ""
 
 
 class HealthResponse(BaseModel):
@@ -105,64 +130,79 @@ def health_check():
     )
 
 
-@app.post("/research", response_model=ResearchResponse, tags=["Research"])
+@app.post("/research", tags=["Research"])
 def research_outlet(request: ResearchRequest):
     """
-    Run the full Media Intelligence pipeline for a named outlet.
+    Start the Media Intelligence pipeline for a named outlet.
+    Returns a job_id immediately. Poll GET /job/{job_id} for results.
 
-    This endpoint:
-    1. Identifies 2 competitors automatically
-    2. Researches all 3 outlets using 6 data sources
-    3. Retrieves industry context from Pinecone RAG
-    4. Performs temporal drift analysis
-    5. Scores all outlets with consensus scoring (Krippendorff's Alpha)
-    6. Generates a structured Markdown report
-
-    The report is saved to /reports/ and returned in the response.
-
-    **Warning:** This endpoint takes 3-8 minutes to complete.
-    It makes multiple API calls and runs 54 LLM evaluations.
+    This avoids timeout issues on proxies (ngrok, Render) that close
+    connections after 30 seconds. The pipeline runs in a background thread.
     """
     outlet = request.outlet.strip()
-
     if not outlet:
-        raise HTTPException(
-            status_code=400,
-            detail="Outlet name cannot be empty."
-        )
+        raise HTTPException(status_code=400, detail="Outlet name cannot be empty.")
 
-    print(f"\n[app] Research request received: {outlet}")
+    job_id = str(uuid.uuid4())
+    _jobs[job_id] = {"status": "running", "report": None, "notion_url": "", "error": None}
 
+    def run_job():
+        try:
+            print(f"\n[app] Starting pipeline for: {outlet} (job: {job_id})")
+            report = run_pipeline(outlet_name=outlet, save_report=True)
+            if not report:
+                _jobs[job_id]["status"] = "error"
+                _jobs[job_id]["error"]  = "Pipeline produced no report"
+                return
+            filename   = outlet.lower().replace(" ", "_").replace("/", "_")
+            # Build a public report URL if available
+            base_url   = os.getenv("PUBLIC_URL", "http://localhost:8000")
+            report_url = f"{base_url}/report/{filename}"
+
+            _jobs[job_id]["status"]     = "complete"
+            _jobs[job_id]["report"]     = report
+            _jobs[job_id]["saved_to"]   = f"reports/{filename}.md"
+            _jobs[job_id]["generated"]  = datetime.now().isoformat()
+            _jobs[job_id]["char_count"] = len(report)
+            _jobs[job_id]["outlet"]     = outlet
+            _jobs[job_id]["report_url"] = report_url
+            print(f"[app] Job {job_id} complete: {len(report)} chars")
+        except Exception as e:
+            print(f"[app] Job {job_id} failed: {e}")
+            _jobs[job_id]["status"] = "error"
+            _jobs[job_id]["error"]  = str(e)
+
+    thread = threading.Thread(target=run_job, daemon=True)
+    thread.start()
+
+    return {"job_id": job_id, "status": "running", "outlet": outlet}
+
+
+@app.get("/job/{job_id}", tags=["Research"])
+def get_job_status(job_id: str):
+    """
+    Poll this endpoint to check if a pipeline job is complete.
+    Returns status: running | complete | error
+    When complete, returns the full report.
+    """
+    job = _jobs.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail=f"Job {job_id} not found.")
+    return job
+
+
+@app.get("/reports-library", tags=["Reports"])
+def list_reports_library():
+    """
+    Fetch all past reports from the Notion database.
+    Returns a list of reports with outlet, date, score, and Notion URL.
+    """
     try:
-        report = run_pipeline(outlet_name=outlet, save_report=True)
-
-        if not report:
-            raise HTTPException(
-                status_code=500,
-                detail="Pipeline completed but no report was generated."
-            )
-
-        # Build the saved filename
-        filename = outlet.lower().replace(" ", "_").replace("/", "_")
-        saved_to = f"reports/{filename}.md"
-
-        return ResearchResponse(
-            outlet     = outlet,
-            report     = report,
-            saved_to   = saved_to,
-            generated  = datetime.now().isoformat(),
-            char_count = len(report),
-        )
-
-    except HTTPException:
-        raise
-
+        from src.integrations.notion_client import list_reports_from_notion
+        reports = list_reports_from_notion()
+        return {"count": len(reports), "reports": reports}
     except Exception as e:
-        print(f"[app] Pipeline error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Pipeline failed: {str(e)}"
-        )
+        return {"count": 0, "reports": [], "error": str(e)}
 
 
 @app.get("/report/{outlet_name}", tags=["Reports"])
