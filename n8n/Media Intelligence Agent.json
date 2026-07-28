@@ -40,7 +40,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "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"
+              "value": "NOTION_TOKEN_HERE"
             },
             {
               "name": "Notion-Version",
