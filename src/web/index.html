@@ -16,11 +16,7 @@ html{scroll-behavior:smooth;}
 body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;}
 
 /* HEADER */
-header{
-  position:sticky;top:0;z-index:200;background:var(--navy);height:var(--header-h);
-  padding:0 40px;display:flex;align-items:center;justify-content:space-between;
-  border-bottom:2px solid var(--red);box-shadow:0 2px 12px rgba(0,0,0,0.3);
-}
+header{position:sticky;top:0;z-index:200;background:var(--navy);height:var(--header-h);padding:0 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--red);box-shadow:0 2px 12px rgba(0,0,0,0.3);}
 .logo-wrap{display:flex;align-items:center;gap:14px;}
 .logo-box{width:36px;height:36px;background:var(--red);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff;}
 .logo-title{font-family:'Playfair Display',serif;font-size:19px;font-weight:600;color:#fff;line-height:1.2;}
@@ -44,13 +40,20 @@ header{
 .home-h1{font-family:'Playfair Display',serif;font-size:clamp(36px,4vw,56px);font-weight:700;color:var(--navy);line-height:1.08;margin-bottom:22px;}
 .home-h1 span{color:var(--red);}
 .home-desc{font-size:clamp(15px,1.5vw,17px);line-height:1.75;color:#4A5568;margin-bottom:48px;max-width:680px;}
+
+/* Input card */
 .input-card{background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:30px 32px;box-shadow:0 4px 20px rgba(0,0,0,0.07);margin-bottom:40px;}
-.input-lbl{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:block;}
+.input-lbl{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:block;}
+.input-lbl .opt{font-size:11px;font-weight:400;text-transform:none;letter-spacing:0;color:#B0B8C8;}
 .input-row{display:flex;gap:12px;align-items:stretch;}
-.outlet-input{flex:1;padding:16px 20px;font-size:17px;font-family:'Inter',sans-serif;border:2px solid var(--border);border-radius:10px;outline:none;color:var(--ink);background:var(--paper);transition:border-color .2s,background .2s;}
+.field-wrap{position:relative;margin-top:14px;}
+.outlet-input{width:100%;padding:16px 20px;font-size:16px;font-family:'Inter',sans-serif;border:2px solid var(--border);border-radius:10px;outline:none;color:var(--ink);background:var(--paper);transition:border-color .2s,background .2s;}
 .outlet-input:focus{border-color:var(--navy);background:#fff;box-shadow:0 0 0 3px rgba(13,27,42,.08);}
 .outlet-input::placeholder{color:#B8BEC8;}
-.run-btn{padding:16px 32px;background:var(--red);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .2s;white-space:nowrap;}
+.outlet-input.input-error{border-color:var(--red)!important;background:#FFF5F5;}
+.field-error{font-size:12px;color:var(--red);margin-top:6px;display:none;}
+.field-error.show{display:block;}
+.run-btn{padding:16px 32px;background:var(--red);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .2s;white-space:nowrap;margin-top:14px;width:100%;}
 .run-btn:hover{background:#a93226;}
 .run-btn:disabled{background:var(--muted);cursor:not-allowed;}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;}
@@ -65,8 +68,8 @@ header{
 /* LOADING */
 #loading{width:100%;max-width:640px;margin:0 auto;padding:72px 24px;text-align:center;}
 .loading-outlet{font-family:'Playfair Display',serif;font-size:clamp(22px,3vw,32px);font-weight:700;color:var(--navy);margin-bottom:8px;}
-.loading-sub{font-size:14px;color:var(--muted);margin-bottom:48px;line-height:1.6;}
-.steps-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:28px 32px;margin-bottom:32px;text-align:left;box-shadow:0 2px 12px rgba(0,0,0,.06);}
+.loading-sub{font-size:14px;color:var(--muted);margin-bottom:32px;line-height:1.6;}
+.steps-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:28px 32px;margin-bottom:24px;text-align:left;box-shadow:0 2px 12px rgba(0,0,0,.06);}
 .step{display:flex;align-items:flex-start;gap:16px;padding:14px 0;border-bottom:1px solid var(--border);opacity:.3;transition:opacity .4s;}
 .step:last-child{border-bottom:none;}
 .step.active{opacity:1;}
@@ -78,6 +81,33 @@ header{
 .step-title{font-size:14px;font-weight:700;color:var(--navy);}
 .step-detail{font-size:12px;color:var(--muted);margin-top:4px;}
 .loading-note{font-size:13px;color:var(--muted);line-height:1.7;max-width:480px;margin:0 auto;}
+
+/* STOP BUTTON */
+.stop-btn{background:rgba(192,57,43,.08);color:var(--red);border:1.5px solid rgba(192,57,43,.3);padding:11px 24px;border-radius:8px;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;margin-bottom:20px;transition:all .18s;}
+.stop-btn:hover{background:rgba(192,57,43,.15);}
+
+/* STOP MODAL */
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(13,27,42,.6);z-index:500;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal{background:#fff;border-radius:16px;padding:36px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.modal-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--navy);margin-bottom:8px;}
+.modal-sub{font-size:14px;color:var(--muted);margin-bottom:28px;line-height:1.6;}
+.modal-outlet{font-weight:700;color:var(--ink);}
+.modal-options{display:flex;flex-direction:column;gap:10px;}
+.modal-btn{padding:14px 20px;border-radius:10px;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;text-align:left;border:1.5px solid var(--border);background:#fff;color:var(--ink);transition:all .18s;}
+.modal-btn:hover{border-color:var(--navy);background:var(--paper);}
+.modal-btn-primary{background:var(--navy);color:#fff;border-color:var(--navy);}
+.modal-btn-primary:hover{background:#1a2f45;}
+.modal-btn-danger{background:rgba(192,57,43,.06);color:var(--red);border-color:rgba(192,57,43,.3);}
+.modal-btn-danger:hover{background:rgba(192,57,43,.12);}
+
+/* Change email inline */
+.change-email-form{display:none;margin-top:8px;padding:16px;background:var(--paper);border-radius:8px;border:1px solid var(--border);}
+.change-email-form.show{display:block;}
+.change-email-row{display:flex;gap:8px;margin-top:8px;}
+.change-email-input{flex:1;padding:10px 14px;font-size:14px;font-family:'Inter',sans-serif;border:1.5px solid var(--border);border-radius:7px;outline:none;color:var(--ink);}
+.change-email-input:focus{border-color:var(--navy);}
+.change-email-btn{padding:10px 16px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;}
 
 /* REPORT */
 #report{width:100%;min-height:calc(100vh - var(--header-h));}
@@ -94,8 +124,13 @@ header{
 .sb-btn-secondary{background:rgba(255,255,255,.1);color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.18)!important;}
 .sb-btn-secondary:hover{background:rgba(255,255,255,.18);}
 .rpt-main{flex:1;min-width:0;padding:52px 6% 80px;}
-.notion-bar{display:none;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:12px 20px;margin-bottom:20px;font-size:14px;color:#166534;}
-.notion-bar a{color:#166534;font-weight:600;}
+
+/* Notification bar */
+.notif-bar{display:none;border-radius:10px;padding:14px 20px;margin-bottom:24px;font-size:13px;line-height:1.7;}
+.notif-bar.with-email{background:#F0FDF4;border:1px solid #BBF7D0;color:#166534;}
+.notif-bar.no-email{background:#EFF6FF;border:1px solid #BFDBFE;color:#1E40AF;}
+.notif-bar a{font-weight:600;text-decoration:underline;color:inherit;}
+
 .rpt-header{border-bottom:2px solid var(--border);padding-bottom:32px;margin-bottom:44px;}
 .rpt-eyebrow{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:10px;}
 .rpt-title{font-family:'Playfair Display',serif;font-size:clamp(24px,3vw,38px);font-weight:700;color:var(--navy);margin-bottom:10px;line-height:1.1;}
@@ -120,18 +155,30 @@ header{
 .rpt-body em{font-style:italic;color:#4A5568;}
 .new-analysis-btn{display:inline-block;margin-top:52px;background:var(--red);color:#fff;border:none;padding:14px 28px;border-radius:10px;font-size:15px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .2s;}
 .new-analysis-btn:hover{background:#a93226;}
+/* Send to email inline form */
+.send-email-wrap{margin-top:10px;}
+.send-email-row{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;}
+.send-email-input{flex:1;min-width:200px;padding:9px 14px;font-size:13px;font-family:'Inter',sans-serif;border:1.5px solid rgba(255,255,255,.3);border-radius:7px;outline:none;color:var(--ink);background:#fff;}
+.send-email-input.err{border-color:var(--red);}
+.send-email-btn{padding:9px 16px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.send-email-btn:hover{background:#1a2f45;}
+.send-email-cancel{padding:9px 12px;background:transparent;color:inherit;border:none;font-size:13px;cursor:pointer;opacity:.7;}
+.send-email-cancel:hover{opacity:1;}
+.send-email-err{font-size:11px;color:var(--red);margin-top:4px;display:none;}
+.send-email-err.show{display:block;}
+.send-email-success{font-size:13px;font-weight:600;color:var(--green);}
 .err-box{background:#FFF5F5;border:1.5px solid #FED7D7;border-radius:12px;padding:32px;text-align:center;margin-top:24px;}
 .err-box h3{color:var(--red);margin-bottom:10px;}
 .err-box p{color:#718096;font-size:14px;line-height:1.6;}
 .retry-btn{background:var(--red);color:#fff;border:none;padding:11px 22px;border-radius:8px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;margin-top:18px;}
 
-/* REPORTS LIBRARY */
+/* PAST REPORTS */
 #library{width:100%;padding:52px 8% 80px;}
 .lib-header{margin-bottom:40px;}
 .lib-title{font-family:'Playfair Display',serif;font-size:clamp(28px,3vw,40px);font-weight:700;color:var(--navy);margin-bottom:8px;}
 .lib-sub{font-size:15px;color:var(--muted);}
 .lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;}
-.report-card{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:24px;transition:box-shadow .2s,border-color .2s;cursor:pointer;}
+.report-card{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:24px;transition:box-shadow .2s,border-color .2s;}
 .report-card:hover{box-shadow:0 6px 24px rgba(0,0,0,.1);border-color:#C8C0B5;}
 .card-outlet{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--navy);margin-bottom:6px;}
 .card-meta{font-size:12px;color:var(--muted);margin-bottom:16px;}
@@ -140,24 +187,45 @@ header{
 .score-bar-wrap{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
 .score-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--red),var(--gold));}
 .score-num{font-size:13px;font-weight:700;color:var(--navy);min-width:32px;text-align:right;}
-.card-competitors{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.card-competitors{font-size:12px;color:var(--muted);margin-bottom:12px;}
 .card-competitors span{color:var(--ink);font-weight:500;}
 .card-top-dim{display:inline-block;font-size:11px;font-weight:600;color:var(--green);background:rgba(26,122,74,.08);padding:4px 10px;border-radius:12px;margin-bottom:16px;}
 .card-actions{display:flex;gap:8px;}
 .card-btn{flex:1;padding:9px 12px;border-radius:8px;font-size:12px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;text-align:center;text-decoration:none;border:none;transition:all .18s;}
-.card-btn-notion{background:var(--navy);color:#fff;}
-.card-btn-notion:hover{background:#1a2f45;}
+.card-btn-open{background:var(--navy);color:#fff;}
+.card-btn-open:hover{background:#1a2f45;}
 .card-btn-dl{background:rgba(192,57,43,.08);color:var(--red);border:1.5px solid rgba(192,57,43,.2)!important;}
 .card-btn-dl:hover{background:rgba(192,57,43,.15);}
 .lib-empty{text-align:center;padding:80px 24px;color:var(--muted);}
 .lib-empty h3{font-size:20px;color:var(--navy);margin-bottom:8px;}
 .lib-spinner{text-align:center;padding:60px;color:var(--muted);font-size:14px;}
 
-@media(max-width:900px){.rpt-sidebar{display:none;}.rpt-main{padding:32px 5% 64px;}.input-row{flex-direction:column;}.run-btn{width:100%;}}
+@media(max-width:900px){.rpt-sidebar{display:none;}.rpt-main{padding:32px 5% 64px;}.run-btn{margin-top:14px;}}
 @media(max-width:600px){header{padding:0 20px;}.header-nav .nav-btn span{display:none;}}
 </style>
 </head>
 <body>
+
+<!-- STOP MODAL -->
+<div class="modal-overlay" id="stopModal">
+  <div class="modal">
+    <div class="modal-title">⏸ Analysis in progress</div>
+    <div class="modal-sub">Researching <span class="modal-outlet" id="modalOutlet"></span>. What would you like to do?</div>
+    <div class="modal-options">
+      <button class="modal-btn modal-btn-primary" onclick="continueAnalysis()">▶ Continue analysis</button>
+      <button class="modal-btn" onclick="showChangeEmail()">📧 Change recipient email</button>
+      <div class="change-email-form" id="changeEmailForm">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:4px;">New recipient email:</div>
+        <div class="change-email-row">
+          <input type="email" class="change-email-input" id="newEmailInput" placeholder="new@email.com"/>
+          <button class="change-email-btn" onclick="applyNewEmail()">Update</button>
+        </div>
+      </div>
+      <button class="modal-btn" onclick="analyseOther()">🔍 Analyse a different outlet</button>
+      <button class="modal-btn modal-btn-danger" onclick="cancelAnalysis()">✕ Cancel and start over</button>
+    </div>
+  </div>
+</div>
 
 <header>
   <div class="logo-wrap">
@@ -168,7 +236,7 @@ header{
     </div>
   </div>
   <div class="header-nav">
-    <button class="nav-btn nav-btn-ghost" onclick="showLibrary()">📋 Reports Library</button>
+    <button class="nav-btn nav-btn-ghost" onclick="showLibrary()">📋 Past Reports</button>
     <button class="nav-btn nav-btn-red" onclick="showScreen('home')">+ New Analysis</button>
   </div>
 </header>
@@ -179,11 +247,11 @@ header{
     <div class="eyebrow">Competitive Intelligence · Powered by AI</div>
     <h1 class="home-h1">Give it an outlet.<br>Get back a <span>validated</span> benchmark.</h1>
     <p class="home-desc">The Media Intelligence Agent autonomously researches a named media outlet, benchmarks it against two competitors, tracks editorial drift over time, and generates a structured intelligence brief — validated by three independent AI evaluators using Krippendorff's Alpha.</p>
+
     <div class="input-card">
       <label class="input-lbl">Media Outlet Name</label>
       <div class="input-row">
         <input type="text" id="outletInput" class="outlet-input" placeholder="e.g. Der Spiegel, Reuters, BBC News, Le Monde…" autocomplete="off"/>
-        <button class="run-btn" id="runBtn" onclick="startAnalysis()">Run Analysis →</button>
       </div>
       <div class="chips">
         <span class="chip" onclick="setOutlet('Reuters')">Reuters</span>
@@ -195,7 +263,22 @@ header{
         <span class="chip" onclick="setOutlet('Al Jazeera')">Al Jazeera</span>
         <span class="chip" onclick="setOutlet('Die Zeit')">Die Zeit</span>
       </div>
+
+      <div class="field-wrap">
+        <label class="input-lbl">Send report to <span class="opt">— optional. Leave blank to store in database only.</span></label>
+        <input type="email" id="emailInput" class="outlet-input" style="font-size:15px;padding:14px 18px;" placeholder="analyst@company.com"/>
+        <div class="field-error" id="emailError">Please enter a valid email address (e.g. name@company.com)</div>
+      </div>
+
+      <button class="run-btn" id="runBtn" onclick="startAnalysis()">Run Analysis →</button>
+      <div style="margin-top:12px;display:flex;align-items:center;gap:8px;">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--muted);">
+          <input type="checkbox" id="forceRefresh" style="width:14px;height:14px;cursor:pointer;"/>
+          Force fresh analysis <span style="font-size:11px;">(ignore 7-day cache)</span>
+        </label>
+      </div>
     </div>
+
     <div class="features">
       <div class="feat"><div class="feat-icon">🔍</div><div class="feat-title">7 Data Sources</div><div class="feat-desc">Tavily · NewsAPI · Guardian · Wikipedia · Wayback Machine · RSS · GDELT</div></div>
       <div class="feat"><div class="feat-icon">📊</div><div class="feat-title">Consensus Scoring</div><div class="feat-desc">3 independent AI evaluators · Krippendorff's Alpha · 6 editorial dimensions</div></div>
@@ -208,13 +291,14 @@ header{
 <!-- LOADING -->
 <div id="loading" class="screen">
   <div class="loading-outlet" id="loadingOutlet">Researching…</div>
-  <div class="loading-sub">The agent is running autonomously. This takes 5–8 minutes.</div>
+  <div class="loading-sub" id="loadingSub">The agent is running autonomously. This takes 5–8 minutes.</div>
+  <button class="stop-btn" onclick="showStopModal()">⏸ Pause / Change options</button>
   <div class="steps-card">
     <div class="step" id="step1"><div class="step-dot">1</div><div><div class="step-title">Identifying competitors</div><div class="step-detail">Wikipedia + LLM reasoning · finding 2 closest rivals automatically</div></div></div>
     <div class="step" id="step2"><div class="step-dot">2</div><div><div class="step-title">Researching all 3 outlets</div><div class="step-detail">ReAct agent · 7 data sources · 3 historical time windows</div></div></div>
     <div class="step" id="step3"><div class="step-dot">3</div><div><div class="step-title">Retrieving industry context</div><div class="step-detail">Pinecone RAG · 11 curated industry documents</div></div></div>
     <div class="step" id="step4"><div class="step-dot">4</div><div><div class="step-title">Analysing temporal drift</div><div class="step-detail">Emerging · fading · stable editorial themes with article evidence</div></div></div>
-    <div class="step" id="step5"><div class="step-dot">5</div><div><div class="step-title">Consensus scoring — 54 evaluations</div><div class="step-detail">GPT-4o-mini · Claude Sonnet · GPT-4o-mini · Krippendorff's Alpha</div></div></div>
+    <div class="step" id="step5"><div class="step-dot">5</div><div><div class="step-title">Consensus scoring — 54 evaluations</div><div class="step-detail">GPT-5.6-Sol · GPT-5.6-Terra · GPT-5.6-Luna · Krippendorff's Alpha</div></div></div>
     <div class="step" id="step6"><div class="step-dot">6</div><div><div class="step-title">Generating intelligence brief</div><div class="step-detail">Scorecard · competitive position · drift · evidence links</div></div></div>
   </div>
   <p class="loading-note">No human input required between trigger and report. The agent decides which tools to call, in what order, based on what it finds.</p>
@@ -242,12 +326,12 @@ header{
     </div>
     <div class="sb-actions">
       <button class="sb-btn sb-btn-primary" onclick="downloadReport()">↓ Download Report</button>
-      <button class="sb-btn sb-btn-secondary" onclick="showLibrary()">📋 Reports Library</button>
+      <button class="sb-btn sb-btn-secondary" onclick="showLibrary()">📋 Past Reports</button>
       <button class="sb-btn sb-btn-secondary" onclick="showScreen('home')">+ New Analysis</button>
     </div>
   </nav>
   <main class="rpt-main">
-    <div class="notion-bar" id="notionBar"></div>
+    <div class="notif-bar" id="notifBar"></div>
     <div class="rpt-header">
       <div class="rpt-eyebrow">Media Intelligence Brief</div>
       <div class="rpt-title" id="reportTitle">Report</div>
@@ -258,25 +342,28 @@ header{
   </main>
 </div>
 
-<!-- REPORTS LIBRARY -->
+<!-- PAST REPORTS -->
 <div id="library" class="screen">
   <div class="lib-header">
     <div class="rpt-eyebrow">Reports Library</div>
     <div class="lib-title">Past Intelligence Briefs</div>
-    <div class="lib-sub">All reports generated and stored in Notion. Click to open or download.</div>
+    <div class="lib-sub">All reports stored in your database. Click to open or download.</div>
   </div>
-  <div id="libContent">
-    <div class="lib-spinner">Loading reports from Notion…</div>
-  </div>
+  <div id="libContent"><div class="lib-spinner">Loading reports…</div></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 <script>
 const API_BASE = window.location.origin;
 const HEADERS  = {'Content-Type':'application/json','ngrok-skip-browser-warning':'true'};
-let currentOutlet = '';
-let reportMarkdown = '';
+let currentOutlet    = '';
+let currentJobId     = '';
+let currentEmail     = '';
+let reportMarkdown   = '';
+let analysisRunning  = false;
+let stepTimers       = [];
 
+// ── Helpers ────────────────────────────────────────────
 function setOutlet(n){document.getElementById('outletInput').value=n;document.getElementById('outletInput').focus();}
 
 function showScreen(id){
@@ -290,39 +377,157 @@ function scrollTo2(text){
   for(const h of hs){if(h.textContent.includes(text)){h.scrollIntoView({behavior:'smooth',block:'start'});return;}}
 }
 
+// ── Email validation ───────────────────────────────────
+function validateEmail(email){
+  if(!email) return true; // empty is valid (optional)
+  const re=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email);
+}
+
+function checkEmail(){
+  const email=document.getElementById('emailInput').value.trim();
+  const errEl=document.getElementById('emailError');
+  const inputEl=document.getElementById('emailInput');
+  if(email && !validateEmail(email)){
+    inputEl.classList.add('input-error');
+    errEl.classList.add('show');
+    return false;
+  }
+  inputEl.classList.remove('input-error');
+  errEl.classList.remove('show');
+  return true;
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('emailInput').addEventListener('blur', checkEmail);
+  document.getElementById('outletInput').addEventListener('keydown',e=>{if(e.key==='Enter')startAnalysis();});
+
+// ── Send to email (post-report) ────────────────────────
+function showSendEmailForm(){
+  const wrap=document.getElementById('sendEmailWrap');
+  if(wrap){wrap.style.display='block';document.getElementById('sendEmailAddr').focus();}
+}
+
+function hideSendEmailForm(){
+  const wrap=document.getElementById('sendEmailWrap');
+  if(wrap) wrap.style.display='none';
+}
+
+function validateEmailAddr(email){
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+async function submitSendEmail(){
+  const input  = document.getElementById('sendEmailAddr');
+  const errEl  = document.getElementById('sendEmailErr');
+  const succEl = document.getElementById('sendEmailSuccess');
+  const email  = (input.value||'').trim();
+
+  // Validate
+  if(!email || !validateEmailAddr(email)){
+    input.classList.add('err');
+    errEl.classList.add('show');
+    input.focus();
+    return;
+  }
+  input.classList.remove('err');
+  errEl.classList.remove('show');
+
+  const btn = document.querySelector('.send-email-btn');
+  btn.textContent='Sending…';
+  btn.disabled=true;
+
+  try{
+    const res=await fetch(API_BASE+'/send-report',{
+      method:'POST',
+      headers:HEADERS,
+      body:JSON.stringify({outlet:currentOutlet, recipient_email:email})
+    });
+    if(!res.ok){const e=await res.json();throw new Error(e.detail||'Failed to send');}
+    // Show success
+    input.style.display='none';
+    btn.style.display='none';
+    document.querySelector('.send-email-cancel').style.display='none';
+    succEl.textContent='✅ Report sent to '+email;
+    succEl.style.display='block';
+  }catch(err){
+    errEl.textContent=err.message;
+    errEl.classList.add('show');
+    btn.textContent='Send report →';
+    btn.disabled=false;
+  }
+}
+});
+
+// ── Step animation ─────────────────────────────────────
 function startStepAnimation(){
   const ids=['step1','step2','step3','step4','step5','step6'];
   const t=[2,25,85,145,200,330];
+  stepTimers.forEach(t=>clearTimeout(t));
+  stepTimers=[];
   ids.forEach((id,i)=>{
-    setTimeout(()=>{
+    const timer=setTimeout(()=>{
       if(i>0){const p=document.getElementById(ids[i-1]);p.classList.remove('active');p.classList.add('done');p.querySelector('.step-dot').textContent='✓';}
       document.getElementById(id).classList.add('active');
     },t[i]*1000);
+    stepTimers.push(timer);
   });
 }
 
+function resetSteps(){
+  stepTimers.forEach(t=>clearTimeout(t));
+  stepTimers=[];
+  document.querySelectorAll('.step').forEach((s,i)=>{
+    s.classList.remove('active','done');
+    s.querySelector('.step-dot').textContent=i+1;
+  });
+}
+
+// ── Main analysis flow ─────────────────────────────────
 async function startAnalysis(){
   const outlet=document.getElementById('outletInput').value.trim();
+  const email=document.getElementById('emailInput').value.trim();
+
   if(!outlet){document.getElementById('outletInput').focus();return;}
+  if(!checkEmail()) return;
+
   currentOutlet=outlet;
+  currentEmail=email;
+  analysisRunning=true;
+
   document.getElementById('loadingOutlet').textContent='Analysing: '+outlet;
+  const forceRefresh = document.getElementById('forceRefresh').checked;
+  document.getElementById('loadingSub').textContent=
+    forceRefresh
+      ? 'Running fresh analysis (cache bypassed)...'
+      : email
+        ? 'Checking database for recent report. Report will be sent to '+email+' when ready.'
+        : 'Checking database for recent report. Results will be stored in the database.';
+  document.getElementById('modalOutlet').textContent=outlet;
   document.getElementById('runBtn').disabled=true;
-  document.querySelectorAll('.step').forEach((s,i)=>{s.classList.remove('active','done');s.querySelector('.step-dot').textContent=i+1;});
-  // restore steps card
+
+  resetSteps();
   const sc=document.querySelector('.steps-card');
   if(sc)sc.style.display='';
   showScreen('loading');
   startStepAnimation();
+
   try{
-    const res=await fetch(API_BASE+'/research',{method:'POST',headers:HEADERS,body:JSON.stringify({outlet})});
+    const body={outlet, force_refresh: document.getElementById('forceRefresh').checked};
+    if(email) body.recipient_email=email;
+    const res=await fetch(API_BASE+'/research',{method:'POST',headers:HEADERS,body:JSON.stringify(body)});
     if(!res.ok){const e=await res.json();throw new Error(e.detail||'Failed to start');}
     const {job_id}=await res.json();
+    currentJobId=job_id;
     const data=await pollJob(job_id);
+    data.recipient_email=email;
     renderReport(data);
   }catch(err){
+    if(err.message==='cancelled') return;
     const sc=document.querySelector('.steps-card');
     if(sc)sc.innerHTML='<div class="err-box"><h3>Analysis Failed</h3><p>'+err.message+'</p><button class="retry-btn" onclick="showScreen(\'home\')">← Try Again</button></div>';
   }finally{
+    analysisRunning=false;
     document.getElementById('runBtn').disabled=false;
   }
 }
@@ -331,29 +536,103 @@ async function pollJob(job_id){
   const INTERVAL=8000;const MAX=80;
   for(let i=0;i<MAX;i++){
     await new Promise(r=>setTimeout(r,INTERVAL));
+    if(!analysisRunning) throw new Error('cancelled');
     const res=await fetch(API_BASE+'/job/'+job_id,{headers:HEADERS});
-    if(!res.ok)throw new Error('Failed to check job status');
+    if(!res.ok) throw new Error('Failed to check status');
     const job=await res.json();
-    if(job.status==='complete')return job;
-    if(job.status==='error')throw new Error(job.error||'Pipeline failed');
+    if(job.status==='complete') return job;
+    if(job.status==='error') throw new Error(job.error||'Pipeline failed');
   }
   throw new Error('Timed out after 10 minutes');
 }
 
+// ── Stop modal ─────────────────────────────────────────
+function showStopModal(){
+  document.getElementById('stopModal').classList.add('show');
+  document.getElementById('changeEmailForm').classList.remove('show');
+}
+
+function continueAnalysis(){
+  document.getElementById('stopModal').classList.remove('show');
+}
+
+function showChangeEmail(){
+  document.getElementById('changeEmailForm').classList.toggle('show');
+}
+
+function applyNewEmail(){
+  const newEmail=document.getElementById('newEmailInput').value.trim();
+  if(newEmail && !validateEmail(newEmail)){
+    alert('Please enter a valid email address.');
+    return;
+  }
+  currentEmail=newEmail;
+  document.getElementById('loadingSub').textContent=
+    newEmail
+      ? 'Report will be sent to '+newEmail+' when ready.'
+      : 'Report will be stored in the database when ready.';
+  document.getElementById('stopModal').classList.remove('show');
+  // Note: email update will be applied when report renders
+}
+
+function analyseOther(){
+  analysisRunning=false;
+  document.getElementById('stopModal').classList.remove('show');
+  document.getElementById('outletInput').value='';
+  document.getElementById('emailInput').value='';
+  showScreen('home');
+}
+
+function cancelAnalysis(){
+  analysisRunning=false;
+  document.getElementById('stopModal').classList.remove('show');
+  document.getElementById('runBtn').disabled=false;
+  showScreen('home');
+}
+
+// ── Report rendering ───────────────────────────────────
 function renderReport(data){
   reportMarkdown=data.report||'';
   const title=(reportMarkdown.split('\n')[0]||'').replace(/^#+ /,'').replace('Media Intelligence Brief: ','');
   document.getElementById('reportTitle').textContent=title;
+  const cacheLabel = data.source === 'cache' ? ' · ⚡ Served from database cache' : '';
   document.getElementById('reportMeta').textContent=
     'Generated '+(data.generated||'').split('T')[0]+
-    ' · '+Math.round((data.char_count||0)/1000)+'k characters · Benchmarked against 2 competitors';
+    ' · '+Math.round((data.char_count||0)/1000)+'k characters · Benchmarked against 2 competitors' + cacheLabel;
 
-  // Notion bar
-  const nb=document.getElementById('notionBar');
-  if(data.notion_url){
-    nb.innerHTML='📋 Report saved to Notion — <a href="'+data.notion_url+'" target="_blank">Open in Notion →</a>';
-    nb.style.display='block';
-  } else {nb.style.display='none';}
+  // Notification bar
+  const nb=document.getElementById('notifBar');
+  const email=currentEmail||data.recipient_email||'';
+  const notionUrl=data.notion_url||'';
+
+  if(email){
+    // Email was provided -- show confirmation
+    nb.className='notif-bar with-email';
+    let parts=[];
+    if(notionUrl) parts.push('<a href="'+notionUrl+'" target="_blank">Open full report →</a>');
+    parts.push('📧 Brief sent to <strong>'+email+'</strong>');
+    parts.push('💬 Slack notified');
+    nb.innerHTML=parts.join('&nbsp;&nbsp;·&nbsp;&nbsp;');
+  } else {
+    // No email -- show download + send option
+    nb.className='notif-bar no-email';
+    const openLink = notionUrl ? '<a href="'+notionUrl+'" target="_blank">Open full report →</a>&nbsp;&nbsp;·&nbsp;&nbsp;' : '';
+    nb.innerHTML = openLink +
+      '📥 Report ready · No email configured&nbsp;&nbsp;·&nbsp;&nbsp;' +
+      '<button onclick="showSendEmailForm()" style="background:var(--navy);color:#fff;border:none;padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">📧 Send to email</button>' +
+      '&nbsp;&nbsp;·&nbsp;&nbsp;<button onclick="downloadReport()" style="background:transparent;border:none;font-size:13px;color:#1E40AF;font-weight:600;cursor:pointer;text-decoration:underline;">↓ Download</button>' +
+      '<div class="send-email-wrap" id="sendEmailWrap" style="display:none;">' +
+        '<div class="send-email-row">' +
+          '<input type="email" id="sendEmailAddr" class="send-email-input" placeholder="analyst@company.com"/>' +
+          '<button class="send-email-btn" onclick="submitSendEmail()">Send report →</button>' +
+          '<button class="send-email-cancel" onclick="hideSendEmailForm()">Cancel</button>' +
+        '</div>' +
+        '<div class="send-email-err" id="sendEmailErr">Please enter a valid email address</div>' +
+        '<div id="sendEmailSuccess" style="display:none;" class="send-email-success">✅ Report sent successfully!</div>' +
+      '</div>';
+    nb.innerHTML += '&nbsp;&nbsp;·&nbsp;&nbsp;💬 Slack notified';
+  }
+  nb.style.display='block';
 
   marked.setOptions({breaks:true,gfm:true});
   document.getElementById('reportContent').innerHTML=marked.parse(reportMarkdown);
@@ -370,7 +649,7 @@ function renderReport(data){
     }
   });
 
-  // Colour-code alpha values
+  // Colour-code alpha values in tables
   document.querySelectorAll('#reportContent td').forEach(td=>{
     const t=td.textContent;
     if(t.includes('✓')||t.includes('CONSENSUS')){td.style.color='#1A7A4A';td.style.fontWeight='600';}
@@ -392,14 +671,14 @@ function downloadReport(){
   a.click();URL.revokeObjectURL(url);
 }
 
-// ── REPORTS LIBRARY ────────────────────────────────────────
+// ── Past Reports library ───────────────────────────────
 async function showLibrary(){
   showScreen('library');
   const content=document.getElementById('libContent');
-  content.innerHTML='<div class="lib-spinner">Loading reports from Notion…</div>';
+  content.innerHTML='<div class="lib-spinner">Loading reports…</div>';
   try{
     const res=await fetch(API_BASE+'/reports-library',{headers:HEADERS});
-    if(!res.ok)throw new Error('Failed to fetch reports');
+    if(!res.ok) throw new Error('Failed to fetch');
     const data=await res.json();
     renderLibrary(data.reports||[]);
   }catch(err){
@@ -416,15 +695,14 @@ function renderLibrary(reports){
   const cards=reports.map(r=>{
     const score=parseFloat(r.overall_score||0);
     const pct=((score/5)*100).toFixed(0);
-    const date=r.generated||'';
-    const notionBtn=r.notion_url
-      ? `<a class="card-btn card-btn-notion" href="${r.notion_url}" target="_blank">Open in Notion</a>`
-      : `<span class="card-btn card-btn-notion" style="opacity:.4;cursor:default">No Notion link</span>`;
+    const openBtn=r.notion_url
+      ? `<a class="card-btn card-btn-open" href="${r.notion_url}" target="_blank">Open report →</a>`
+      : `<span class="card-btn card-btn-open" style="opacity:.4;cursor:default">No link</span>`;
     const dlBtn=`<button class="card-btn card-btn-dl" onclick="downloadFromLibrary('${r.outlet}')">↓ Download</button>`;
     return `
     <div class="report-card">
       <div class="card-outlet">${r.outlet}</div>
-      <div class="card-meta">${date} · Score ${score.toFixed(2)}/5</div>
+      <div class="card-meta">${r.generated||''} · Score ${score.toFixed(2)}/5</div>
       <div class="card-score">
         <div class="score-label">Overall Score</div>
         <div class="score-bar-wrap"><div class="score-bar-fill" style="width:${pct}%"></div></div>
@@ -432,7 +710,7 @@ function renderLibrary(reports){
       </div>
       ${r.competitors?`<div class="card-competitors">vs <span>${r.competitors}</span></div>`:''}
       ${r.top_dimension?`<div class="card-top-dim">★ ${r.top_dimension}</div>`:''}
-      <div class="card-actions">${notionBtn}${dlBtn}</div>
+      <div class="card-actions">${openBtn}${dlBtn}</div>
     </div>`;
   }).join('');
   content.innerHTML=`<div class="lib-grid">${cards}</div>`;
@@ -442,19 +720,15 @@ async function downloadFromLibrary(outletName){
   const filename=outletName.toLowerCase().replace(/ /g,'_');
   try{
     const res=await fetch(API_BASE+'/report/'+filename,{headers:HEADERS});
-    if(!res.ok)throw new Error('Report not found locally');
+    if(!res.ok) throw new Error('Report not found locally');
     const text=await res.text();
     const blob=new Blob([text],{type:'text/markdown'});
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
     a.href=url;a.download='media-intelligence-'+filename+'.md';
     a.click();URL.revokeObjectURL(url);
-  }catch(err){
-    alert('Could not download: '+err.message);
-  }
+  }catch(err){alert('Could not download: '+err.message);}
 }
-
-document.getElementById('outletInput').addEventListener('keydown',e=>{if(e.key==='Enter')startAnalysis();});
 </script>
 </body>
 </html>

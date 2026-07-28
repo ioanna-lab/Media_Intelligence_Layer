@@ -89,11 +89,13 @@ def serve_ui():
 # ── Request / Response models ─────────────────────────────
 class ResearchRequest(BaseModel):
     """Input model for the /research endpoint."""
-    outlet: str
+    outlet:          str
+    recipient_email: str = ""
+    force_refresh:   bool = False
 
     class Config:
         json_schema_extra = {
-            "example": {"outlet": "Der Spiegel"}
+            "example": {"outlet": "Der Spiegel", "recipient_email": "analyst@company.com"}
         }
 
 
@@ -131,7 +133,7 @@ def health_check():
 
 
 @app.post("/research", tags=["Research"])
-def research_outlet(request: ResearchRequest):
+def research_outlet(request: ResearchRequest, req_obj: Request = None):
     """
     Start the Media Intelligence pipeline for a named outlet.
     Returns a job_id immediately. Poll GET /job/{job_id} for results.
@@ -143,12 +145,109 @@ def research_outlet(request: ResearchRequest):
     if not outlet:
         raise HTTPException(status_code=400, detail="Outlet name cannot be empty.")
 
+    # Deduplication -- if this outlet is already running, return existing job
+    if not request.force_refresh:
+        for existing_id, existing_job in _jobs.items():
+            if (existing_job.get("outlet","").lower() == outlet.lower()
+                    and existing_job.get("status") == "running"):
+                print(f"[app] Dedup: returning existing job {existing_id} for {outlet}")
+                return {"job_id": existing_id, "status": "running", "outlet": outlet}
+
     job_id = str(uuid.uuid4())
     _jobs[job_id] = {"status": "running", "report": None, "notion_url": "", "error": None}
+
+    # Fire-and-forget N8N notification (runs in background)
+    def notify_n8n(job_id: str, outlet: str, recipient: str):
+        """Trigger N8N webhook after job completes -- handles Slack + Gmail."""
+        import time
+        n8n_url = os.getenv("N8N_WEBHOOK_URL", "")
+        if not n8n_url:
+            return
+        # Wait for job to complete then notify N8N
+        max_wait = 600  # 10 minutes
+        interval = 15
+        waited   = 0
+        while waited < max_wait:
+            time.sleep(interval)
+            waited += interval
+            job = _jobs.get(job_id, {})
+            if job.get("status") == "complete":
+                try:
+                    import requests as req
+                    payload = {
+                        "outlet":          outlet,
+                        "recipient_email": recipient,
+                        "job_id":          job_id,
+                        "notion_url":      job.get("notion_url", ""),
+                        "overall_score":   job.get("overall_score", 0),
+                        "report_url":      job.get("report_url", ""),
+                    }
+                    req.post(n8n_url, json=payload, timeout=10)
+                    print(f"[app] N8N notified for job {job_id}")
+                except Exception as e:
+                    print(f"[app] N8N notification failed: {e}")
+                break
+            if job.get("status") == "error":
+                break
 
     def run_job():
         try:
             print(f"\n[app] Starting pipeline for: {outlet} (job: {job_id})")
+
+            # Check Notion cache first (7 days)
+            if not request.force_refresh:
+                try:
+                    from src.integrations.notion_client import list_reports_from_notion
+                    reports = list_reports_from_notion()
+                    from datetime import datetime, timedelta
+                    cutoff  = datetime.now() - timedelta(days=7)
+                    cutoff_str = cutoff.strftime("%Y-%m-%d")
+                    print(f"[app] Cache check for '{outlet}' -- cutoff: {cutoff_str}")
+                    print(f"[app] Notion has {len(reports)} reports: {[r.get('outlet') for r in reports]}")
+                    match   = next((
+                        r for r in reports
+                        if r.get("outlet","").lower() == outlet.lower()
+                        and r.get("generated","") >= cutoff_str
+                    ), None)
+                    print(f"[app] Cache match: {match.get('outlet') if match else 'None'}")
+                    if match:
+                        print(f"[app] Cache hit for {outlet} -- serving from Notion")
+                        cached_report = open(f"reports/{filename}.md", encoding="utf-8").read() if __import__("os").path.exists(f"reports/{filename}.md") else ""
+                        notion_url    = match.get("notion_url","")
+                        overall_score = match.get("overall_score", 0)
+                        recipient     = _jobs[job_id].get("recipient_email","")
+
+                        _jobs[job_id]["status"]       = "complete"
+                        _jobs[job_id]["report"]       = cached_report
+                        _jobs[job_id]["saved_to"]     = f"reports/{filename}.md"
+                        _jobs[job_id]["generated"]    = match.get("generated","")
+                        _jobs[job_id]["char_count"]   = len(cached_report)
+                        _jobs[job_id]["outlet"]       = outlet
+                        _jobs[job_id]["notion_url"]   = notion_url
+                        _jobs[job_id]["overall_score"]= overall_score
+                        _jobs[job_id]["source"]       = "cache"
+
+                        # Trigger N8N notification even for cache hits
+                        n8n_url = os.getenv("N8N_WEBHOOK_URL", "")
+                        if n8n_url:
+                            try:
+                                import requests as req
+                                req.post(n8n_url, json={
+                                    "outlet":          outlet,
+                                    "recipient_email": recipient,
+                                    "notion_url":      notion_url,
+                                    "overall_score":   overall_score,
+                                    "slack":           True,
+                                    "source":          "cache",
+                                    "ip":              _jobs[job_id].get("ip","unknown"),
+                                }, timeout=10)
+                                print(f"[app] N8N notified (cache hit) for {outlet}")
+                            except Exception as e:
+                                print(f"[app] N8N notification failed: {e}")
+                        return
+                except Exception as cache_err:
+                    print(f"[app] Cache check failed, running pipeline: {cache_err}")
+
             report = run_pipeline(outlet_name=outlet, save_report=True)
             if not report:
                 _jobs[job_id]["status"] = "error"
@@ -159,6 +258,17 @@ def research_outlet(request: ResearchRequest):
             base_url   = os.getenv("PUBLIC_URL", "http://localhost:8000")
             report_url = f"{base_url}/report/{filename}"
 
+            # Fetch notion_url from Notion database after save
+            notion_url = ""
+            try:
+                from src.integrations.notion_client import list_reports_from_notion
+                reports = list_reports_from_notion()
+                match = next((r for r in reports if r.get("outlet","").lower() == outlet.lower()), None)
+                if match:
+                    notion_url = match.get("notion_url", "")
+            except Exception:
+                pass
+
             _jobs[job_id]["status"]     = "complete"
             _jobs[job_id]["report"]     = report
             _jobs[job_id]["saved_to"]   = f"reports/{filename}.md"
@@ -166,14 +276,30 @@ def research_outlet(request: ResearchRequest):
             _jobs[job_id]["char_count"] = len(report)
             _jobs[job_id]["outlet"]     = outlet
             _jobs[job_id]["report_url"] = report_url
-            print(f"[app] Job {job_id} complete: {len(report)} chars")
+            _jobs[job_id]["notion_url"] = notion_url
+            print(f"[app] Job {job_id} complete: {len(report)} chars | Notion: {notion_url[:50] if notion_url else 'not found'}")
         except Exception as e:
             print(f"[app] Job {job_id} failed: {e}")
             _jobs[job_id]["status"] = "error"
             _jobs[job_id]["error"]  = str(e)
 
+    # Store recipient and IP for N8N notification
+    _jobs[job_id]["recipient_email"] = request.recipient_email or ""
+    forwarded = req_obj.headers.get("x-forwarded-for", "") if hasattr(req_obj, "headers") else ""
+    _jobs[job_id]["ip"] = forwarded.split(",")[0].strip() if forwarded else "unknown"
+
     thread = threading.Thread(target=run_job, daemon=True)
     thread.start()
+
+    # Start N8N notifier thread (fire and forget)
+    n8n_url = os.getenv("N8N_WEBHOOK_URL", "")
+    if n8n_url:
+        n8n_thread = threading.Thread(
+            target=notify_n8n,
+            args=(job_id, outlet, request.recipient_email or ""),
+            daemon=True
+        )
+        n8n_thread.start()
 
     return {"job_id": job_id, "status": "running", "outlet": outlet}
 
@@ -189,6 +315,49 @@ def get_job_status(job_id: str):
     if not job:
         raise HTTPException(status_code=404, detail=f"Job {job_id} not found.")
     return job
+
+
+@app.post("/send-report", tags=["Reports"])
+async def send_report(request: Request):
+    """
+    Send an already-generated report to an email address.
+    Triggers N8N Workflow 1 with slack=false (email only, no Slack).
+    Called from the UI when user enters email after viewing the report.
+    """
+    body = await request.json()
+    outlet    = (body.get("outlet", "") or "").strip()
+    recipient = (body.get("recipient_email", "") or "").strip()
+
+    if not outlet:
+        raise HTTPException(status_code=400, detail="outlet is required")
+    if not recipient:
+        raise HTTPException(status_code=400, detail="recipient_email is required")
+
+    # Basic email validation
+    import re
+    if not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", recipient):
+        raise HTTPException(status_code=400, detail="Invalid email address")
+
+    # Use dedicated email-only webhook (no Slack)
+    n8n_email_url = os.getenv("N8N_EMAIL_WEBHOOK_URL",
+                    os.getenv("N8N_WEBHOOK_URL","").replace("media-intelligence-notify","media-intelligence-email"))
+    if not n8n_email_url:
+        raise HTTPException(status_code=500, detail="N8N webhook not configured")
+
+    try:
+        import requests as req
+        payload = {
+            "outlet":          outlet,
+            "recipient_email": recipient,
+            "notion_url":      "",
+            "overall_score":   0,
+        }
+        resp = req.post(n8n_email_url, json=payload, timeout=15)
+        resp.raise_for_status()
+        print(f"[app] Report sent to {recipient} for outlet: {outlet}")
+        return {"status": "sent", "outlet": outlet, "recipient": recipient}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to send: {str(e)}")
 
 
 @app.get("/reports-library", tags=["Reports"])

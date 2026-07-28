@@ -23,7 +23,6 @@ import time
 import numpy as np
 import krippendorff
 from openai import OpenAI
-from anthropic import Anthropic
 from dotenv import load_dotenv
 
 from src.scoring.dimensions import SCORING_DIMENSIONS
@@ -31,11 +30,11 @@ from src.scoring.dimensions import SCORING_DIMENSIONS
 load_dotenv()
 
 _openai    = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-_anthropic = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 LLM_MODEL  = "gpt-4o-mini"
 
-# Three different models for genuine independent evaluation
-# Different architectures produce genuinely different scores
+# Three different GPT models for genuine independent evaluation
+# Different model generations produce genuinely different scores
+# Three different model generations for genuine independent evaluation
 EVALUATORS = [
     {
         "model":       "gpt-4o-mini",
@@ -44,15 +43,15 @@ EVALUATORS = [
         "persona":     "You are a conservative media analyst who values evidence and precision above all.",
     },
     {
-        "model":       "claude-sonnet-4-6",
-        "provider":    "anthropic",
+        "model":       "gpt-5.6-sol",
+        "provider":    "openai",
         "temperature": 0.5,
         "persona":     "You are a progressive media critic who focuses on editorial mission and societal impact.",
     },
     {
-        "model":       "gpt-4o-mini",
+        "model":       "gpt-5.6-luna",
         "provider":    "openai",
-        "temperature": 0.9,
+        "temperature": 0.7,
         "persona":     "You are an industry veteran who weighs commercial sustainability alongside editorial quality.",
     },
 ]
@@ -66,26 +65,27 @@ ALPHA_MODERATE   = 0.4   # above this = MODERATE confidence
                           # below ALPHA_MODERATE = CONTESTED
 
 
+# Models using new API (max_completion_tokens instead of max_tokens)
+GPT5_MODELS = {"gpt-5.4-mini", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5"}
+
 def _call_openai(prompt: str, temperature: float, model: str = "gpt-4o-mini") -> str:
-    """Call OpenAI and return response text."""
-    response = _openai.chat.completions.create(
-        model=model,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=temperature,
-        max_tokens=350,
-    )
+    """Call OpenAI and return response text. Handles both GPT-4 and GPT-5 API differences."""
+    # GPT-5 models use max_completion_tokens, not max_tokens
+    if model in GPT5_MODELS:
+        response = _openai.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=temperature,
+            max_completion_tokens=350,
+        )
+    else:
+        response = _openai.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=temperature,
+            max_tokens=350,
+        )
     return response.choices[0].message.content.strip()
-
-
-def _call_anthropic(prompt: str, temperature: float) -> str:
-    """Call Claude and return response text."""
-    response = _anthropic.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=350,
-        temperature=temperature,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    return response.content[0].text.strip()
 
 
 def single_evaluation(
@@ -138,11 +138,8 @@ Return ONLY a JSON object in this exact format, nothing else:
 }}"""
 
     try:
-        if provider == "anthropic":
-            raw = _call_anthropic(full_prompt, temperature)
-        else:
-            model = evaluator.get("model", "gpt-4o-mini")
-            raw = _call_openai(full_prompt, temperature, model)
+        model = evaluator.get("model", "gpt-4o-mini")
+        raw = _call_openai(full_prompt, temperature, model)
 
         # Strip markdown code fences if present
         if "```" in raw:
@@ -162,7 +159,28 @@ Return ONLY a JSON object in this exact format, nothing else:
         return {"score": 3.0, "reasoning": "Evaluation parse failed.", "evidence": []}
 
     except Exception as e:
-        print(f"[consensus] Evaluation error for {outlet}/{dimension_key}: {e}")
+        print(f"[consensus] Evaluation error for {outlet}/{dimension_key} ({evaluator.get('model','?')}): {e}")
+        # If GPT-5.x model fails, retry with gpt-4o-mini fallback
+        if evaluator.get("model", "") not in ("gpt-4o-mini", "gpt-4o"):
+            print(f"[consensus] Retrying with gpt-4o-mini fallback...")
+            try:
+                import re as _re
+                fallback = _openai.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[{"role": "user", "content": full_prompt}],
+                    temperature=evaluator.get("temperature", 0.5),
+                    max_tokens=350,
+                )
+                raw2  = fallback.choices[0].message.content.strip()
+                clean2 = _re.sub(r"```(?:json)?", "", raw2).strip().rstrip("`").strip()
+                data2  = json.loads(clean2)
+                return {
+                    "score":    float(max(1.0, min(5.0, data2.get("score", 3.0)))),
+                    "reasoning": data2.get("reasoning", ""),
+                    "evidence":  data2.get("evidence", []),
+                }
+            except Exception as e2:
+                print(f"[consensus] Fallback also failed: {e2}")
         return {"score": 3.0, "reasoning": "Evaluation failed.", "evidence": []}
 
 
