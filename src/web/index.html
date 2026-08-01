@@ -362,6 +362,10 @@ function hideSendEmailForm(){
     <div class="cache-dim" id="cacheDim"></div>
     <div class="cache-competitors" id="cacheCompetitors"></div>
     <div class="cache-desc">This report was recently generated and stored in the database. You can view it now, send it by email, or run a fresh analysis.</div>
+    <div id="cacheCostInfo" style="font-size:13px;color:var(--muted);margin-bottom:20px;padding:10px 14px;background:var(--paper);border-radius:8px;border:1px solid var(--border);display:none;">
+      <span style="color:var(--green);font-weight:700;">Serve cached:</span> <span id="cacheCostServe"></span> &nbsp;·&nbsp;
+      <span style="color:var(--amber);font-weight:700;">Run fresh:</span> <span id="cacheCostFresh"></span>
+    </div>
     <div class="cache-actions">
       <button class="cache-btn-show" onclick="showCachedReport()">Show this report</button>
       <button class="cache-btn-fresh" onclick="runFreshAnalysis()">Run fresh analysis</button>
@@ -602,6 +606,17 @@ function applyNewEmail(){
 function analyseOther(){ analysisRunning = false; document.getElementById('stopModal').classList.remove('show'); newAnalysis(); }
 function cancelAnalysis(){ analysisRunning = false; document.getElementById('stopModal').classList.remove('show'); document.getElementById('runBtn').disabled = false; newAnalysis(); }
 
+// Cache cost display
+function showCacheCost(cost){
+  const el = document.getElementById('cacheCostInfo');
+  const serveEl = document.getElementById('cacheCostServe');
+  const freshEl = document.getElementById('cacheCostFresh');
+  if(!el || !cost) return;
+  serveEl.textContent = cost.total !== undefined ? '~$' + Number(cost.total).toFixed(4) : '~$0.0001';
+  freshEl.textContent = cost.fresh_would_cost !== undefined ? '~$' + Number(cost.fresh_would_cost).toFixed(4) : '~$0.03';
+  el.style.display = 'block';
+}
+
 // Cache screen
 function showCachedReport(){
   if(cachedJobData){
@@ -665,6 +680,7 @@ async function startAnalysis(){
       document.getElementById('cacheScoreNum').textContent = firstJob.overall_score ? Number(firstJob.overall_score).toFixed(2) : '-';
       document.getElementById('cacheDim').textContent = firstJob.top_dimension ? 'Top dimension: ' + firstJob.top_dimension : '';
       document.getElementById('cacheCompetitors').textContent = firstJob.competitors ? 'Benchmarked against: ' + firstJob.competitors : '';
+      showCacheCost(firstJob.cost);
       showScreen('cached');
     } else if(firstJob.status === 'complete'){
       firstJob.recipient_email = email;
@@ -689,6 +705,7 @@ async function startAnalysis(){
         document.getElementById('cacheScoreNum').textContent = data.overall_score ? Number(data.overall_score).toFixed(2) : '-';
         document.getElementById('cacheDim').textContent = data.top_dimension ? 'Top dimension: ' + data.top_dimension : '';
         document.getElementById('cacheCompetitors').textContent = data.competitors ? 'Benchmarked against: ' + data.competitors : '';
+        showCacheCost(data.cost);
         showScreen('cached');
       } else {
         renderReport(data);
@@ -767,6 +784,24 @@ function renderReport(data){
     document.getElementById('sendEmailTrigger').style.display = 'inline-block';
   }
   nb.style.display = 'block';
+
+  // Cost chip
+  const cost = data.cost;
+  if(cost){
+    const costChip = document.createElement('span');
+    costChip.style.cssText = 'display:inline-block;margin-top:8px;font-size:12px;color:var(--muted);';
+    if(cost.source === 'cache'){
+      costChip.innerHTML = '💰 <strong>Cost this run:</strong> ~$' + Number(cost.total).toFixed(4) + ' (served from cache) &nbsp;·&nbsp; Fresh analysis would cost ~$' + Number(cost.fresh_would_cost).toFixed(4);
+    } else {
+      const b = cost.breakdown || {};
+      costChip.innerHTML = '💰 <strong>Estimated cost:</strong> ~$' + Number(cost.total).toFixed(4) +
+        ' &nbsp;·&nbsp; Research $' + Number(b.research_react_agent||0).toFixed(4) +
+        ' · Scoring $' + Number(b.consensus_scoring_54_evals||0).toFixed(4) +
+        ' · Report $' + Number(b.report_generation||0).toFixed(4);
+    }
+    nb.appendChild(document.createElement('br'));
+    nb.appendChild(costChip);
+  }
 
   // Hide send email form
   document.getElementById('sendEmailForm').style.display = 'none';

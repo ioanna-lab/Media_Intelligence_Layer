@@ -251,13 +251,14 @@ def list_reports_from_notion() -> list[dict]:
                 return p.get("url") or ""
 
             reports.append({
-                "outlet":        get_title(props.get("Outlet", {})),
-                "generated":     get_date(props.get("Generated", {})),
-                "overall_score": get_number(props.get("Overall Score", {})),
-                "competitors":   get_text(props.get("Competitors", {})),
-                "top_dimension": get_text(props.get("Top Dimension", {})),
-                "notion_url":    page.get("url", ""),
-                "status":        get_select(props.get("Status", {})),
+                "outlet":          get_title(props.get("Outlet", {})),
+                "generated":       get_date(props.get("Generated", {})),
+                "overall_score":   get_number(props.get("Overall Score", {})),
+                "competitors":     get_text(props.get("Competitors", {})),
+                "top_dimension":   get_text(props.get("Top Dimension", {})),
+                "notion_url":      page.get("url", ""),
+                "notion_page_id":  page.get("id", ""),
+                "status":          get_select(props.get("Status", {})),
             })
 
         print(f"[notion] Retrieved {len(reports)} reports")
@@ -268,7 +269,74 @@ def list_reports_from_notion() -> list[dict]:
         return []
 
 
-def list_reports_from_notion_legacy() -> list[dict]:
+def get_report_content_from_notion(page_id: str) -> str:
+    """
+    Fetch the full report content from a Notion page by reconstructing
+    its blocks back into Markdown. Used on Render where local .md files
+    don't persist across deploys.
+
+    Args:
+        page_id: Notion page ID (from list_reports_from_notion notion_page_id field)
+
+    Returns:
+        Markdown string, or empty string if failed.
+    """
+    if not NOTION_TOKEN or not page_id:
+        return ""
+
+    try:
+        import requests as req
+        hdrs = {
+            "Authorization":  f"Bearer {NOTION_TOKEN}",
+            "Notion-Version": "2022-06-28",
+        }
+
+        # Paginate through all blocks (Notion returns max 100 per request)
+        blocks = []
+        url    = f"https://api.notion.com/v1/blocks/{page_id}/children?page_size=100"
+        while url:
+            resp = req.get(url, headers=hdrs, timeout=15)
+            resp.raise_for_status()
+            data = resp.json()
+            blocks.extend(data.get("results", []))
+            if data.get("has_more") and data.get("next_cursor"):
+                url = (f"https://api.notion.com/v1/blocks/{page_id}/children"
+                       f"?page_size=100&start_cursor={data['next_cursor']}")
+            else:
+                url = None
+
+        # Reconstruct markdown from blocks
+        lines = []
+        for block in blocks:
+            btype = block.get("type", "")
+            bdata = block.get(btype, {})
+            texts = bdata.get("rich_text", [])
+            text  = "".join(t.get("plain_text", "") for t in texts)
+
+            if btype == "heading_1":
+                lines.append(f"# {text}")
+            elif btype == "heading_2":
+                lines.append(f"## {text}")
+            elif btype == "heading_3":
+                lines.append(f"### {text}")
+            elif btype == "bulleted_list_item":
+                lines.append(f"- {text}")
+            elif btype == "numbered_list_item":
+                lines.append(f"1. {text}")
+            elif btype == "quote":
+                lines.append(f"> {text}")
+            elif btype == "divider":
+                lines.append("---")
+            elif btype == "paragraph":
+                lines.append(text)
+
+        content = "\n".join(lines)
+        print(f"[notion] Fetched {len(blocks)} blocks ({len(content)} chars) from page {page_id}")
+        return content
+
+    except Exception as e:
+        print(f"[notion] Error fetching page content: {e}")
+        return ""
     """Legacy version using notion-client library."""
     if not NOTION_TOKEN or not NOTION_DATABASE_ID:
         return []

@@ -219,7 +219,24 @@ def research_outlet(request: ResearchRequest, req_obj: Request = None):
                     print(f"[app] Cache match: {match.get('outlet') if match else 'None'}")
                     if match:
                         print(f"[app] Cache hit for {outlet} -- serving from Notion")
-                        cached_report = open(f"reports/{filename}.md", encoding="utf-8").read() if __import__("os").path.exists(f"reports/{filename}.md") else ""
+                        # Try local file first; fall back to fetching from Notion blocks
+                        if os.path.exists(f"reports/{filename}.md"):
+                            cached_report = open(f"reports/{filename}.md", encoding="utf-8").read()
+                        else:
+                            print(f"[app] Local file missing -- fetching content from Notion blocks")
+                            try:
+                                from src.integrations.notion_client import get_report_content_from_notion
+                                page_id = match.get("notion_page_id", "")
+                                cached_report = get_report_content_from_notion(page_id) if page_id else ""
+                                # Save locally for subsequent requests this session
+                                if cached_report:
+                                    os.makedirs("reports", exist_ok=True)
+                                    with open(f"reports/{filename}.md", "w", encoding="utf-8") as f:
+                                        f.write(cached_report)
+                                    print(f"[app] Saved fetched report locally: reports/{filename}.md")
+                            except Exception as ne:
+                                print(f"[app] Notion content fetch failed: {ne}")
+                                cached_report = ""
                         notion_url    = match.get("notion_url","")
                         overall_score = match.get("overall_score", 0)
                         recipient     = _jobs[job_id].get("recipient_email","")
@@ -235,6 +252,16 @@ def research_outlet(request: ResearchRequest, req_obj: Request = None):
                         _jobs[job_id]["source"]       = "cache"
                         _jobs[job_id]["competitors"]  = match.get("competitors","")
                         _jobs[job_id]["top_dimension"]= match.get("top_dimension","")
+                        # Cost: serving from cache is essentially free
+                        try:
+                            from src.cost_estimator import estimate_fresh_cost, CACHE_COST
+                            _jobs[job_id]["cost"] = {
+                                "total":             CACHE_COST,
+                                "source":            "cache",
+                                "fresh_would_cost":  estimate_fresh_cost(3)["total"],
+                            }
+                        except Exception:
+                            pass
 
                         # Trigger N8N notification for cache hit
                         n8n_url = os.getenv("N8N_WEBHOOK_URL", "")
@@ -287,6 +314,15 @@ def research_outlet(request: ResearchRequest, req_obj: Request = None):
             _jobs[job_id]["outlet"]     = outlet
             _jobs[job_id]["report_url"] = report_url
             _jobs[job_id]["notion_url"] = notion_url
+            _jobs[job_id]["source"]     = "fresh"
+            # Cost: fresh analysis
+            try:
+                from src.cost_estimator import estimate_fresh_cost
+                cost_data = estimate_fresh_cost(3)
+                cost_data["source"] = "fresh"
+                _jobs[job_id]["cost"] = cost_data
+            except Exception:
+                pass
             print(f"[app] Job {job_id} complete: {len(report)} chars | Notion: {notion_url[:50] if notion_url else 'not found'}")
         except Exception as e:
             print(f"[app] Job {job_id} failed: {e}")
@@ -395,13 +431,27 @@ def view_report(outlet_name: str):
     filepath = f"reports/{filename}.md"
 
     if not os.path.exists(filepath):
-        raise HTTPException(
-            status_code=404,
-            detail=f"No report found for '{outlet_name}'. Run POST /research first."
-        )
-
-    with open(filepath, "r", encoding="utf-8") as f:
-        report_md = f.read()
+        # Try fetching from Notion
+        try:
+            from src.integrations.notion_client import list_reports_from_notion, get_report_content_from_notion
+            reports = list_reports_from_notion()
+            match   = next((r for r in reports if r.get("outlet","").lower() == outlet_name.lower()), None)
+            if match and match.get("notion_page_id"):
+                report_md = get_report_content_from_notion(match["notion_page_id"])
+                if report_md:
+                    os.makedirs("reports", exist_ok=True)
+                    with open(filepath, "w", encoding="utf-8") as f:
+                        f.write(report_md)
+                    print(f"[view] Fetched from Notion and cached locally: {filepath}")
+            if not report_md:
+                raise HTTPException(status_code=404, detail=f"No report found for '{outlet_name}'.")
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=404, detail=f"No report found for '{outlet_name}': {e}")
+    else:
+        with open(filepath, "r", encoding="utf-8") as f:
+            report_md = f.read()
 
     # Escape backticks and backslashes for safe JS embedding
     report_escaped = report_md.replace("\\", "\\\\").replace("`", "\\`").replace("${", "\\${")
