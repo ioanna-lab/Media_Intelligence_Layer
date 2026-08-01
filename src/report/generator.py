@@ -52,7 +52,7 @@ def generate_executive_summary(
     research_findings: str,
 ) -> str:
     """
-    Generate a 3-sentence executive summary using the LLM.
+    Generate a comprehensive one-page executive summary with 5 structured sections.
 
     Args:
         outlet:             Target outlet name
@@ -61,36 +61,78 @@ def generate_executive_summary(
         research_findings:  Raw research text for the target outlet
 
     Returns:
-        3-sentence summary string.
+        Structured Markdown summary with sections and cross-references.
     """
-    target_score = scores.get(outlet, {}).get("overall_score", "N/A")
+    from src.scoring.dimensions import SCORING_DIMENSIONS
 
-    prompt = f"""Write a 3-sentence executive summary for a competitive intelligence brief about {outlet}.
+    target_scores  = scores.get(outlet, {})
+    target_overall = target_scores.get("overall_score", "N/A")
 
-Key data:
-- Overall score: {target_score}/5
-- Competitors analysed: {', '.join(competitors)}
-- Research excerpt: {research_findings[:600]}
+    # Build competitor score comparison
+    comp_lines = []
+    for comp in competitors:
+        comp_overall = scores.get(comp, {}).get("overall_score", "N/A")
+        comp_lines.append(f"  - {comp}: {comp_overall}/5")
+    comp_comparison = "\n".join(comp_lines)
 
-Requirements:
-- Sentence 1: Overall position and score in context of competitors
-- Sentence 2: Most notable editorial strength or differentiator
-- Sentence 3: Key strategic implication or opportunity
+    # Build dimension scores for target
+    dim_lines = []
+    for dim_key, dim_meta in SCORING_DIMENSIONS.items():
+        dim_data  = target_scores.get(dim_key, {})
+        dim_score = dim_data.get("score", "N/A")
+        dim_alpha = dim_data.get("alpha", 0)
+        dim_lines.append(f"  - {dim_meta['label']}: {dim_score}/5 (α={dim_alpha:.2f})")
+    dim_summary = "\n".join(dim_lines)
 
-Be specific, analytical, and concise. No fluff or filler phrases."""
+    prompt = f"""You are a senior media industry analyst writing an executive summary for a competitive intelligence brief.
+
+TARGET OUTLET: {outlet}
+OVERALL SCORE: {target_overall}/5
+
+COMPETITOR SCORES:
+{comp_comparison}
+
+DIMENSION SCORES FOR {outlet}:
+{dim_summary}
+
+RESEARCH FINDINGS (excerpt):
+{research_findings[:1200]}
+
+Write a comprehensive executive summary with exactly these 5 sections. Use Markdown formatting.
+Each section should be 3-5 sentences minimum. Be specific, analytical, and evidence-based.
+Reference actual data from the scores and findings. Do not use filler phrases.
+
+Use this exact structure:
+
+### What is being analysed
+Describe {outlet} -- its ownership, editorial mission, audience, geographic reach, and market position. Explain why it matters in the competitive landscape and what makes it distinctive as a media outlet.
+
+### Key findings
+Summarise the most important findings from this benchmark. Lead with the overall score in context, then highlight 2-3 standout dimensions (highest and lowest scoring). Compare directly against {", ".join(competitors)}.
+
+### Competitive position
+How does {outlet} stand relative to its competitors? Where does it lead, where does it lag? What is the competitive gap and what does it mean strategically?
+
+### Editorial drift
+What topics are emerging, fading, or stable in {outlet}'s editorial focus? What does this reveal about the outlet's strategic direction and audience priorities?
+
+### Strategic implications
+What should a media strategist, investor, or publisher conclude from this report? What are the 2-3 most actionable insights? What risks or opportunities does this benchmark reveal?
+
+End with: *See [Competitive Scorecard](#competitive-scorecard), [Competitive Position Analysis](#competitive-position-analysis), and [Outlet Analysis](#outlet-analysis) sections for full detail.*"""
 
     try:
         response = _openai.chat.completions.create(
             model=LLM_MODEL,
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.3,
-            max_tokens=250,
+            temperature=0.4,
+            max_tokens=900,
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
         print(f"[generator] Executive summary error: {e}")
         return (
-            f"{outlet} achieved an overall score of {target_score}/5 in this "
+            f"{outlet} achieved an overall score of {target_overall}/5 in this "
             f"competitive benchmark against {', '.join(competitors)}. "
             "See detailed findings below."
         )

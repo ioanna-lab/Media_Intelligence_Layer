@@ -171,7 +171,11 @@ def research_outlet(request: ResearchRequest, req_obj: Request = None):
             time.sleep(interval)
             waited += interval
             job = _jobs.get(job_id, {})
-            if job.get("status") == "complete":
+            if job.get("status") in ("complete", "cached"):
+                # Check if already notified (e.g. via cache hit)
+                if job.get("n8n_notified"):
+                    print(f"[app] N8N already notified for job {job_id} -- skipping duplicate")
+                    break
                 try:
                     import requests as req
                     payload = {
@@ -183,16 +187,19 @@ def research_outlet(request: ResearchRequest, req_obj: Request = None):
                         "report_url":      job.get("report_url", ""),
                     }
                     req.post(n8n_url, json=payload, timeout=10)
+                    _jobs[job_id]["n8n_notified"] = True
                     print(f"[app] N8N notified for job {job_id}")
                 except Exception as e:
                     print(f"[app] N8N notification failed: {e}")
                 break
-            if job.get("status") == "error":
+            if job.get("status") in ("error",):
                 break
 
     def run_job():
+        from datetime import datetime, timedelta
         try:
             print(f"\n[app] Starting pipeline for: {outlet} (job: {job_id})")
+            filename = outlet.lower().replace(" ", "_").replace("/", "_")
 
             # Check Notion cache first (7 days)
             if not request.force_refresh:
@@ -217,7 +224,7 @@ def research_outlet(request: ResearchRequest, req_obj: Request = None):
                         overall_score = match.get("overall_score", 0)
                         recipient     = _jobs[job_id].get("recipient_email","")
 
-                        _jobs[job_id]["status"]       = "complete"
+                        _jobs[job_id]["status"]       = "cached"
                         _jobs[job_id]["report"]       = cached_report
                         _jobs[job_id]["saved_to"]     = f"reports/{filename}.md"
                         _jobs[job_id]["generated"]    = match.get("generated","")
@@ -226,8 +233,10 @@ def research_outlet(request: ResearchRequest, req_obj: Request = None):
                         _jobs[job_id]["notion_url"]   = notion_url
                         _jobs[job_id]["overall_score"]= overall_score
                         _jobs[job_id]["source"]       = "cache"
+                        _jobs[job_id]["competitors"]  = match.get("competitors","")
+                        _jobs[job_id]["top_dimension"]= match.get("top_dimension","")
 
-                        # Trigger N8N notification even for cache hits
+                        # Trigger N8N notification for cache hit
                         n8n_url = os.getenv("N8N_WEBHOOK_URL", "")
                         if n8n_url:
                             try:
@@ -242,6 +251,7 @@ def research_outlet(request: ResearchRequest, req_obj: Request = None):
                                     "ip":              _jobs[job_id].get("ip","unknown"),
                                 }, timeout=10)
                                 print(f"[app] N8N notified (cache hit) for {outlet}")
+                                _jobs[job_id]["n8n_notified"] = True
                             except Exception as e:
                                 print(f"[app] N8N notification failed: {e}")
                         return
@@ -292,8 +302,9 @@ def research_outlet(request: ResearchRequest, req_obj: Request = None):
     thread.start()
 
     # Start N8N notifier thread (fire and forget)
+    # Only if not already notified via cache hit
     n8n_url = os.getenv("N8N_WEBHOOK_URL", "")
-    if n8n_url:
+    if n8n_url and not _jobs[job_id].get("n8n_notified"):
         n8n_thread = threading.Thread(
             target=notify_n8n,
             args=(job_id, outlet, request.recipient_email or ""),
