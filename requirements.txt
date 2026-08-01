@@ -14,7 +14,6 @@ anthropic>=0.25.0
 # Tools / APIs
 tavily-python>=0.3.0
 newsapi-python>=0.2.7
-mediastack
 
 # RSS parsing
 feedparser>=6.0.0
