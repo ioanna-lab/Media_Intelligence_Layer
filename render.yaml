@@ -1,21 +1,39 @@
 services:
   - type: web
     name: media-intelligence-agent
-    env: python
+    runtime: python
+    region: frankfurt          # closest to Berlin
+    plan: free                 # upgrade to starter ($7/mo) to avoid spin-down
     buildCommand: pip install -r requirements.txt
-    startCommand: python src/app.py
+    startCommand: uvicorn src.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+
+    # Render sets PORT automatically -- do not hardcode it
     envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      # All secrets below: set these in Render dashboard, not here
       - key: OPENAI_API_KEY
         sync: false
       - key: ANTHROPIC_API_KEY
         sync: false
       - key: PINECONE_API_KEY
         sync: false
-      - key: PINECONE_INDEX_NAME
-        value: media-intelligence
+      - key: PINECONE_INDEX
+        sync: false
       - key: TAVILY_API_KEY
         sync: false
       - key: NEWSAPI_KEY
         sync: false
       - key: GUARDIAN_API_KEY
         sync: false
+      - key: NOTION_TOKEN
+        sync: false
+      - key: NOTION_DATABASE_ID
+        sync: false
+      - key: N8N_WEBHOOK_URL
+        sync: false
+      - key: N8N_EMAIL_WEBHOOK_URL
+        sync: false
+      - key: PUBLIC_URL
+        sync: false            # set this to your Render URL once deployed

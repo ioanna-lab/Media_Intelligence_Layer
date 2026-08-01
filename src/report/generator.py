@@ -222,23 +222,24 @@ def format_drift_analysis(drift: dict, outlet: str) -> str:
         emerging = [{"topic": t, "examples": []} for t in d.get("emerging", [])]
 
     if emerging:
-        lines.append("**↑ Emerging topics** *(new in last 30 days):*")
-        lines.append("")
-        for item in emerging:
-            topic    = item.get("topic", "")
-            examples = item.get("examples", [])
-            lines.append(f"**{topic}**")
-            for ex in examples[:3]:
-                title = ex.get("title", "")
-                url   = ex.get("url", "")
-                date  = ex.get("date", "")
-                if url:
-                    lines.append(f"  - [{title}]({url}) — {date}")
-                else:
-                    lines.append(f"  - {title} — {date}")
-            if not examples:
-                lines.append("  - *No article examples retrieved*")
+        # Only include topics that have actual article examples
+        evidenced = [item for item in emerging if item.get("examples")]
+        if evidenced:
+            lines.append("**↑ Emerging topics** *(new in last 30 days):*")
             lines.append("")
+            for item in evidenced:
+                topic    = item.get("topic", "")
+                examples = item.get("examples", [])
+                lines.append(f"**{topic}**")
+                for ex in examples[:3]:
+                    title = ex.get("title", "")
+                    url   = ex.get("url", "")
+                    date  = ex.get("date", "")
+                    if url:
+                        lines.append(f"  - [{title}]({url}) — {date}")
+                    else:
+                        lines.append(f"  - {title} — {date}")
+                lines.append("")
 
     # Fading topics with article examples
     fading = d.get("fading_with_examples", [])
@@ -246,23 +247,24 @@ def format_drift_analysis(drift: dict, outlet: str) -> str:
         fading = [{"topic": t, "examples": []} for t in d.get("fading", [])]
 
     if fading:
-        lines.append("**↓ Fading topics** *(strong 6 months ago, declining now):*")
-        lines.append("")
-        for item in fading:
-            topic    = item.get("topic", "")
-            examples = item.get("examples", [])
-            lines.append(f"**{topic}**")
-            for ex in examples[:2]:
-                title = ex.get("title", "")
-                url   = ex.get("url", "")
-                date  = ex.get("date", "")
-                if url:
-                    lines.append(f"  - [{title}]({url}) — {date}")
-                else:
-                    lines.append(f"  - {title} — {date}")
-            if not examples:
-                lines.append("  - *No recent examples (topic has declined)*")
+        # Only include topics that have actual article examples
+        evidenced = [item for item in fading if item.get("examples")]
+        if evidenced:
+            lines.append("**↓ Fading topics** *(strong 6 months ago, declining now):*")
             lines.append("")
+            for item in evidenced:
+                topic    = item.get("topic", "")
+                examples = item.get("examples", [])
+                lines.append(f"**{topic}**")
+                for ex in examples[:2]:
+                    title = ex.get("title", "")
+                    url   = ex.get("url", "")
+                    date  = ex.get("date", "")
+                    if url:
+                        lines.append(f"  - [{title}]({url}) — {date}")
+                    else:
+                        lines.append(f"  - {title} — {date}")
+                lines.append("")
 
     # Stable core
     stable = d.get("stable", [])

@@ -212,11 +212,7 @@ header{position:sticky;top:0;z-index:200;background:var(--navy);height:var(--hea
 
 /* PAST REPORTS */
 #library{width:100%;padding:52px 8% 80px;}
-.lib-header{margin-bottom:40px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;}
-.lib-header-text{flex:1;}
-.lib-back-btn{padding:9px 18px;background:#fff;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;color:var(--ink);font-family:'Inter',sans-serif;cursor:pointer;transition:all .18s;white-space:nowrap;}
-.lib-back-btn:hover{border-color:var(--navy);color:var(--navy);}
-.lib-back-btn.hidden{display:none;}
+.lib-header{margin-bottom:40px;}
 .lib-title{font-family:'Playfair Display',serif;font-size:clamp(28px,3vw,40px);font-weight:700;color:var(--navy);margin-bottom:8px;}
 .lib-sub{font-size:15px;color:var(--muted);}
 .lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;}
@@ -384,8 +380,6 @@ function hideSendEmailForm(){
   </div>
   <p class="loading-note">No human input required between trigger and report. The agent decides which tools to call, in what order, based on what it finds.</p>
 
-  <p style="font-size:13px;color:var(--muted);margin-top:20px;margin-bottom:0;font-style:italic;">Bored waiting? Test your AI ethics knowledge or browse media facts below while the agent works.</p>
-
   <!-- Interactive waiting panel -->
   <div class="interact-panel">
     <div class="interact-tabs">
@@ -474,12 +468,9 @@ function hideSendEmailForm(){
 <!-- PAST REPORTS -->
 <div id="library" class="screen">
   <div class="lib-header">
-    <div class="lib-header-text">
-      <div class="rpt-eyebrow">Reports Library</div>
-      <div class="lib-title">Past Intelligence Briefs</div>
-      <div class="lib-sub">All reports stored in your database. Click to open or download.</div>
-    </div>
-    <button class="lib-back-btn hidden" id="libBackBtn" onclick="showScreen('report')">← Back to report</button>
+    <div class="rpt-eyebrow">Reports Library</div>
+    <div class="lib-title">Past Intelligence Briefs</div>
+    <div class="lib-sub">All reports stored in your database. Click to open or download.</div>
   </div>
   <div id="libContent"><div class="lib-spinner">Loading reports...</div></div>
 </div>
@@ -743,27 +734,30 @@ function renderReport(data){
   nb.innerHTML = '';
 
   const email = currentEmail || data.recipient_email || '';
-  // Build the /view/ URL for this outlet (no Notion login needed)
-  const viewUrl = API_BASE + '/view/' + encodeURIComponent(currentOutlet.toLowerCase().replace(/ /g,'_'));
   if(email){
     nb.className = 'notif-bar with-email';
     document.getElementById('sendEmailTrigger').style.display = 'none';
-    const a = document.createElement('a');
-    a.href = viewUrl; a.target = '_blank'; a.textContent = 'Open full report';
-    nb.appendChild(a);
-    nb.appendChild(document.createTextNode(' · '));
+    if(currentNotionUrl){
+      const a = document.createElement('a');
+      a.href = currentNotionUrl; a.target = '_blank'; a.textContent = 'Open full report';
+      nb.appendChild(a);
+      nb.appendChild(document.createTextNode(' · '));
+    }
     nb.appendChild(document.createTextNode('Brief sent to '));
     const bold = document.createElement('strong'); bold.textContent = email;
     nb.appendChild(bold);
     nb.appendChild(document.createTextNode(' · Slack notified'));
   } else {
     nb.className = 'notif-bar no-email';
-    const a = document.createElement('a');
-    a.href = viewUrl; a.target = '_blank'; a.textContent = 'Open full report';
-    nb.appendChild(a);
-    nb.appendChild(document.createTextNode(' · '));
+    if(currentNotionUrl){
+      const a = document.createElement('a');
+      a.href = currentNotionUrl; a.target = '_blank'; a.textContent = 'Open full report';
+      nb.appendChild(a);
+      nb.appendChild(document.createTextNode(' · '));
+    }
     nb.appendChild(document.createTextNode('Report ready · No email configured'));
     nb.appendChild(document.createTextNode(' · Slack notified'));
+    // Show the permanent send email trigger button
     document.getElementById('sendEmailTrigger').style.display = 'inline-block';
   }
   nb.style.display = 'block';
@@ -870,9 +864,6 @@ function downloadReport(){
 // Past Reports library
 async function showLibrary(){
   showScreen('library');
-  // Show back button only if there's an active report to return to
-  const backBtn = document.getElementById('libBackBtn');
-  if(backBtn) backBtn.classList.toggle('hidden', !reportMarkdown);
   const content = document.getElementById('libContent');
   content.innerHTML = '<div class="lib-spinner">Loading reports...</div>';
   try{
@@ -894,9 +885,9 @@ function renderLibrary(reports){
   const cards = reports.map(r => {
     const score = parseFloat(r.overall_score || 0);
     const pct   = ((score / 5) * 100).toFixed(0);
-    const slug  = (r.outlet||'').toLowerCase().replace(/ /g,'_');
-    const viewUrl = API_BASE + '/view/' + encodeURIComponent(slug);
-    const openBtn = '<a class="card-btn card-btn-open" href="' + viewUrl + '" target="_blank">Open report</a>';
+    const openBtn = r.notion_url
+      ? '<a class="card-btn card-btn-open" href="' + r.notion_url + '" target="_blank">Open report</a>'
+      : '<span class="card-btn card-btn-open" style="opacity:.4;cursor:default">No link</span>';
     const dlBtn = '<button class="card-btn card-btn-dl" onclick="downloadFromLibrary(\'' + r.outlet + '\')">Download</button>';
     return '<div class="report-card">' +
       '<div class="card-outlet">' + r.outlet + '</div>' +

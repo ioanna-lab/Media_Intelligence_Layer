@@ -102,40 +102,6 @@ header{position:sticky;top:0;z-index:200;background:var(--navy);height:var(--hea
 .stop-btn{background:rgba(192,57,43,.08);color:var(--red);border:1.5px solid rgba(192,57,43,.3);padding:11px 24px;border-radius:8px;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;margin-bottom:20px;transition:all .18s;}
 .stop-btn:hover{background:rgba(192,57,43,.15);}
 
-/* INTERACTIVE WAITING PANEL */
-.interact-panel{margin-top:24px;background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);text-align:left;}
-.interact-tabs{display:flex;border-bottom:1px solid var(--border);}
-.itab{flex:1;padding:11px 0;font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;text-align:center;cursor:pointer;color:var(--muted);border:none;background:transparent;font-family:'Inter',sans-serif;transition:all .18s;border-bottom:3px solid transparent;}
-.itab.active{color:var(--navy);border-bottom-color:var(--red);background:rgba(13,27,42,.02);}
-.itab-panel{display:none;padding:24px 28px;}
-.itab-panel.active{display:block;}
-
-/* Quiz */
-.quiz-q{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:18px;line-height:1.5;}
-.quiz-opts{display:flex;flex-direction:column;gap:9px;margin-bottom:18px;}
-.quiz-opt{padding:11px 16px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;color:var(--ink);cursor:pointer;background:#fff;font-family:'Inter',sans-serif;text-align:left;transition:all .18s;}
-.quiz-opt:hover:not(:disabled){border-color:var(--navy);background:var(--paper);}
-.quiz-opt.correct{border-color:var(--green);background:rgba(26,122,74,.07);color:var(--green);font-weight:600;}
-.quiz-opt.wrong{border-color:var(--red);background:rgba(192,57,43,.07);color:var(--red);}
-.quiz-opt:disabled{cursor:default;}
-.quiz-explain{font-size:13px;color:#4A5568;line-height:1.65;padding:12px 16px;background:var(--paper);border-radius:8px;border-left:3px solid var(--gold);display:none;}
-.quiz-explain.show{display:block;}
-.quiz-next{margin-top:14px;padding:9px 20px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;display:none;}
-.quiz-next.show{display:inline-block;}
-.quiz-score{font-size:12px;color:var(--muted);margin-top:14px;}
-
-/* Facts */
-.fact-card{position:relative;}
-.fact-number{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:10px;}
-.fact-text{font-size:15px;color:var(--navy);line-height:1.7;margin-bottom:16px;font-weight:500;}
-.fact-source{font-size:12px;color:var(--muted);}
-.fact-nav{display:flex;gap:8px;margin-top:18px;}
-.fact-btn{padding:7px 14px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;color:var(--muted);background:#fff;cursor:pointer;font-family:'Inter',sans-serif;transition:all .18s;}
-.fact-btn:hover{border-color:var(--navy);color:var(--navy);}
-.fact-dots{display:flex;gap:5px;align-items:center;margin-left:auto;}
-.fact-dot{width:6px;height:6px;border-radius:50%;background:var(--border);transition:background .3s;}
-.fact-dot.active{background:var(--red);}
-
 /* STOP MODAL */
 .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(13,27,42,.6);z-index:500;align-items:center;justify-content:center;}
 .modal-overlay.show{display:flex;}
@@ -212,11 +178,7 @@ header{position:sticky;top:0;z-index:200;background:var(--navy);height:var(--hea
 
 /* PAST REPORTS */
 #library{width:100%;padding:52px 8% 80px;}
-.lib-header{margin-bottom:40px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;}
-.lib-header-text{flex:1;}
-.lib-back-btn{padding:9px 18px;background:#fff;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;color:var(--ink);font-family:'Inter',sans-serif;cursor:pointer;transition:all .18s;white-space:nowrap;}
-.lib-back-btn:hover{border-color:var(--navy);color:var(--navy);}
-.lib-back-btn.hidden{display:none;}
+.lib-header{margin-bottom:40px;}
 .lib-title{font-family:'Playfair Display',serif;font-size:clamp(28px,3vw,40px);font-weight:700;color:var(--navy);margin-bottom:8px;}
 .lib-sub{font-size:15px;color:var(--muted);}
 .lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;}
@@ -383,35 +345,6 @@ function hideSendEmailForm(){
     <div class="step" id="step6"><div class="step-dot">6</div><div><div class="step-title">Generating intelligence brief</div><div class="step-detail">Scorecard, competitive position, drift analysis, evidence links</div></div></div>
   </div>
   <p class="loading-note">No human input required between trigger and report. The agent decides which tools to call, in what order, based on what it finds.</p>
-
-  <p style="font-size:13px;color:var(--muted);margin-top:20px;margin-bottom:0;font-style:italic;">Bored waiting? Test your AI ethics knowledge or browse media facts below while the agent works.</p>
-
-  <!-- Interactive waiting panel -->
-  <div class="interact-panel">
-    <div class="interact-tabs">
-      <button class="itab active" id="tabQuiz" onclick="switchItab('quiz')">🧠 Ethics Quiz</button>
-      <button class="itab" id="tabFacts" onclick="switchItab('facts')">📰 Media Facts</button>
-    </div>
-    <div class="itab-panel active" id="panelQuiz">
-      <div class="quiz-q" id="quizQ"></div>
-      <div class="quiz-opts" id="quizOpts"></div>
-      <div class="quiz-explain" id="quizExplain"></div>
-      <button class="quiz-next" id="quizNext" onclick="nextQuiz()">Next question →</button>
-      <div class="quiz-score" id="quizScore"></div>
-    </div>
-    <div class="itab-panel" id="panelFacts">
-      <div class="fact-card">
-        <div class="fact-number" id="factNum"></div>
-        <div class="fact-text" id="factText"></div>
-        <div class="fact-source" id="factSource"></div>
-        <div class="fact-nav">
-          <button class="fact-btn" onclick="prevFact()">← Prev</button>
-          <button class="fact-btn" onclick="nextFact()">Next →</button>
-          <div class="fact-dots" id="factDots"></div>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- REPORT -->
@@ -443,10 +376,9 @@ function hideSendEmailForm(){
   </nav>
   <main class="rpt-main">
     <div class="notif-bar" id="notifBar"></div>
-    <div id="sendEmailTrigger" style="display:none;margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-      <button style="background:var(--navy);color:#fff;border:none;padding:7px 14px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;" id="triggerSendEmailBtn" onclick="showSendEmailForm()">Send to email</button>
+    <div id="sendEmailTrigger" style="display:none;margin-bottom:8px;">
+      <button style="background:var(--navy);color:#fff;border:none;padding:7px 14px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;margin-right:8px;" id="triggerSendEmailBtn" onclick="showSendEmailForm()">Send to email</button>
       <button style="background:transparent;border:none;font-size:13px;color:#1E40AF;font-weight:600;cursor:pointer;text-decoration:underline;" id="triggerDownloadBtn" onclick="downloadReport()">Download</button>
-      <button id="topFreshBtn" onclick="runFreshAnalysis()" style="display:none;background:transparent;border:1.5px solid rgba(192,57,43,.4);color:var(--red);padding:6px 14px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">↺ Run fresh analysis</button>
     </div>
     <div class="send-email-form" id="sendEmailForm">
       <div style="font-size:13px;font-weight:600;color:#1E40AF;margin-bottom:10px;">Send this report to:</div>
@@ -474,12 +406,9 @@ function hideSendEmailForm(){
 <!-- PAST REPORTS -->
 <div id="library" class="screen">
   <div class="lib-header">
-    <div class="lib-header-text">
-      <div class="rpt-eyebrow">Reports Library</div>
-      <div class="lib-title">Past Intelligence Briefs</div>
-      <div class="lib-sub">All reports stored in your database. Click to open or download.</div>
-    </div>
-    <button class="lib-back-btn hidden" id="libBackBtn" onclick="showScreen('report')">← Back to report</button>
+    <div class="rpt-eyebrow">Reports Library</div>
+    <div class="lib-title">Past Intelligence Briefs</div>
+    <div class="lib-sub">All reports stored in your database. Click to open or download.</div>
   </div>
   <div id="libContent"><div class="lib-spinner">Loading reports...</div></div>
 </div>
@@ -560,7 +489,6 @@ document.addEventListener('DOMContentLoaded', function(){
 
 // Step animation
 function startStepAnimation(){
-  initInteractPanel();
   const ids = ['step1','step2','step3','step4','step5','step6'];
   const t   = [2, 25, 85, 145, 200, 330];
   stepTimers.forEach(t => clearTimeout(t));
@@ -720,7 +648,6 @@ async function pollJob(job_id){
 
 // Report rendering
 function renderReport(data){
-  stopInteractPanel();
   reportMarkdown = data.report || '';
   currentNotionUrl = data.notion_url || '';
   const title = (reportMarkdown.split('\n')[0] || '').replace(/^#+ /, '').replace('Media Intelligence Brief: ', '');
@@ -728,12 +655,10 @@ function renderReport(data){
   const isCache = data.source === 'cache';
   const cacheLabel = isCache ? ' · Served from database cache' : '';
   // Show "run fresh" buttons only for cached reports
-  const sbFresh  = document.getElementById('sbFreshBtn');
-  const btFresh  = document.getElementById('bottomFreshBtn');
-  const topFresh = document.getElementById('topFreshBtn');
-  if(sbFresh)  sbFresh.style.display  = isCache ? 'block' : 'none';
-  if(btFresh)  btFresh.style.display  = isCache ? '' : 'none';
-  if(topFresh) topFresh.style.display = isCache ? '' : 'none';
+  const sbFresh = document.getElementById('sbFreshBtn');
+  const btFresh = document.getElementById('bottomFreshBtn');
+  if(sbFresh) sbFresh.style.display = isCache ? 'block' : 'none';
+  if(btFresh) btFresh.style.display = isCache ? '' : 'none';
   document.getElementById('reportMeta').textContent =
     'Generated ' + (data.generated || '').split('T')[0] +
     ' · ' + Math.round((data.char_count || 0) / 1000) + 'k characters · Benchmarked against 2 competitors' + cacheLabel;
@@ -743,27 +668,30 @@ function renderReport(data){
   nb.innerHTML = '';
 
   const email = currentEmail || data.recipient_email || '';
-  // Build the /view/ URL for this outlet (no Notion login needed)
-  const viewUrl = API_BASE + '/view/' + encodeURIComponent(currentOutlet.toLowerCase().replace(/ /g,'_'));
   if(email){
     nb.className = 'notif-bar with-email';
     document.getElementById('sendEmailTrigger').style.display = 'none';
-    const a = document.createElement('a');
-    a.href = viewUrl; a.target = '_blank'; a.textContent = 'Open full report';
-    nb.appendChild(a);
-    nb.appendChild(document.createTextNode(' · '));
+    if(currentNotionUrl){
+      const a = document.createElement('a');
+      a.href = currentNotionUrl; a.target = '_blank'; a.textContent = 'Open full report';
+      nb.appendChild(a);
+      nb.appendChild(document.createTextNode(' · '));
+    }
     nb.appendChild(document.createTextNode('Brief sent to '));
     const bold = document.createElement('strong'); bold.textContent = email;
     nb.appendChild(bold);
     nb.appendChild(document.createTextNode(' · Slack notified'));
   } else {
     nb.className = 'notif-bar no-email';
-    const a = document.createElement('a');
-    a.href = viewUrl; a.target = '_blank'; a.textContent = 'Open full report';
-    nb.appendChild(a);
-    nb.appendChild(document.createTextNode(' · '));
+    if(currentNotionUrl){
+      const a = document.createElement('a');
+      a.href = currentNotionUrl; a.target = '_blank'; a.textContent = 'Open full report';
+      nb.appendChild(a);
+      nb.appendChild(document.createTextNode(' · '));
+    }
     nb.appendChild(document.createTextNode('Report ready · No email configured'));
     nb.appendChild(document.createTextNode(' · Slack notified'));
+    // Show the permanent send email trigger button
     document.getElementById('sendEmailTrigger').style.display = 'inline-block';
   }
   nb.style.display = 'block';
@@ -870,9 +798,6 @@ function downloadReport(){
 // Past Reports library
 async function showLibrary(){
   showScreen('library');
-  // Show back button only if there's an active report to return to
-  const backBtn = document.getElementById('libBackBtn');
-  if(backBtn) backBtn.classList.toggle('hidden', !reportMarkdown);
   const content = document.getElementById('libContent');
   content.innerHTML = '<div class="lib-spinner">Loading reports...</div>';
   try{
@@ -894,9 +819,9 @@ function renderLibrary(reports){
   const cards = reports.map(r => {
     const score = parseFloat(r.overall_score || 0);
     const pct   = ((score / 5) * 100).toFixed(0);
-    const slug  = (r.outlet||'').toLowerCase().replace(/ /g,'_');
-    const viewUrl = API_BASE + '/view/' + encodeURIComponent(slug);
-    const openBtn = '<a class="card-btn card-btn-open" href="' + viewUrl + '" target="_blank">Open report</a>';
+    const openBtn = r.notion_url
+      ? '<a class="card-btn card-btn-open" href="' + r.notion_url + '" target="_blank">Open report</a>'
+      : '<span class="card-btn card-btn-open" style="opacity:.4;cursor:default">No link</span>';
     const dlBtn = '<button class="card-btn card-btn-dl" onclick="downloadFromLibrary(\'' + r.outlet + '\')">Download</button>';
     return '<div class="report-card">' +
       '<div class="card-outlet">' + r.outlet + '</div>' +
@@ -908,118 +833,6 @@ function renderLibrary(reports){
       '</div>';
   }).join('');
   content.innerHTML = '<div class="lib-grid">' + cards + '</div>';
-}
-
-// ── Interactive waiting panel ──────────────────────────────
-
-const QUIZ_DATA = [
-  {q:"Which principle is NOT part of the EU's Ethics Guidelines for Trustworthy AI?",opts:["Human agency and oversight","Technical robustness","Maximum automation","Fairness"],ans:2,explain:"The EU guidelines define seven requirements: human agency, robustness, privacy, transparency, diversity/fairness, societal wellbeing, and accountability. 'Maximum automation' is not one of them."},
-  {q:"What does Krippendorff's Alpha measure?",opts:["The accuracy of a single model","Inter-annotator agreement across multiple raters","The speed of an NLP pipeline","Sentiment polarity in text"],ans:1,explain:"Krippendorff's Alpha (α) quantifies how consistently multiple independent raters or evaluators agree. α ≥ 0.8 is considered reliable; α < 0.4 signals genuine disagreement that warrants human review."},
-  {q:"In AI fairness, what is 'demographic parity'?",opts:["Equal model accuracy for all users","Proportional representation in training data only","Equal positive prediction rates across demographic groups","Identical outputs for identical inputs"],ans:2,explain:"Demographic parity requires that a model's positive outcome rate is equal across groups (e.g. gender, race). It's one of several fairness criteria — others include equalised odds and individual fairness."},
-  {q:"What is 'hallucination' in the context of large language models?",opts:["Model confusion when inputs are contradictory","Generating confident, plausible-sounding but factually incorrect output","Overfitting to training data","Latency spikes under heavy load"],ans:1,explain:"LLM hallucination refers to the model producing fluent, confident text that is factually wrong or invented. It's a core reliability challenge, especially in high-stakes domains like journalism or legal analysis."},
-  {q:"Which technique is the Media Intelligence Agent using to ground responses in verifiable sources?",opts:["Fine-tuning on media data","Retrieval-Augmented Generation (RAG)","Chain-of-thought prompting only","Reinforcement learning from human feedback"],ans:1,explain:"RAG retrieves relevant documents from a vector store (Pinecone) at inference time and injects them into the prompt. This grounds the model's output in real source material rather than relying on parametric memory alone."},
-  {q:"What is a ReAct agent?",opts:["A React.js component wrapping an LLM","An agent that alternates Reasoning and Acting steps in a loop","A model that only reacts to user input","A supervised learning paradigm"],ans:1,explain:"ReAct (Reason + Act) agents interleave chain-of-thought reasoning with tool calls. The agent reasons about what to do, calls a tool, observes the result, reasons again — repeating until it has enough information to answer."},
-  {q:"Why does the agent use three independent LLM evaluators rather than one?",opts:["To reduce API costs through load balancing","To average away individual model biases and measure inter-rater reliability","Three models are faster than one","To satisfy EU AI Act audit requirements"],ans:1,explain:"Using multiple independent evaluators (GPT-5.6-Sol, Terra, Luna) and computing Krippendorff's Alpha reveals where models disagree. High disagreement flags dimensions that are genuinely ambiguous and flags them for human review — rather than hiding uncertainty behind a single score."},
-  {q:"What problem does 'temporal drift' analysis solve in media intelligence?",opts:["It detects when an outlet's server is slow","It tracks how editorial focus and topic emphasis shift over time","It monitors journalist turnover rates","It measures publication frequency changes"],ans:1,explain:"Temporal drift analysis compares what an outlet covered across 30, 90, and 180-day windows. Themes that appear recently but not historically are 'emerging'; those fading from coverage are 'declining'. This reveals strategic editorial shifts invisible in a single snapshot."},
-];
-
-const FACTS_DATA = [
-  {text:"Reuters operates in 165 countries and produces content in 16 languages, making it one of the most geographically distributed news agencies in the world.",source:"Reuters corporate profile"},
-  {text:"The term 'Fourth Estate' — referring to the press as a check on governmental power — is widely attributed to Edmund Burke in the late 18th century, though the exact origin is debated.",source:"Press freedom history"},
-  {text:"The Guardian has been independently owned by the Scott Trust since 1936, shielding it from shareholder pressure. It became the first major newspaper to pursue a reader-supported model without a paywall.",source:"Guardian Media Group"},
-  {text:"Krippendorff's Alpha was developed by Klaus Krippendorff at the University of Pennsylvania in 1970. It's designed to work with any number of raters, any number of categories, and missing data.",source:"Content Analysis methodology"},
-  {text:"The EU AI Act, passed in 2024, classifies AI systems by risk level. Systems used in critical infrastructure, education, employment, and public services are considered 'high risk' and face strict obligations.",source:"European Parliament, 2024"},
-  {text:"GDELT (Global Database of Events, Language and Tone) monitors the world's news media in over 100 languages, generating a new data update every 15 minutes — roughly 100 million events catalogued.",source:"GDELT Project"},
-  {text:"The Wayback Machine at archive.org has archived over 866 billion web pages since 1996. It's used by researchers, journalists, and fact-checkers to recover deleted or changed content.",source:"Internet Archive"},
-  {text:"Pinecone, used for vector search in this agent, stores text as high-dimensional vectors (embeddings). Semantic similarity is computed via cosine distance — meaning conceptually related content is found even when exact words differ.",source:"Pinecone documentation"},
-  {text:"The Reuters Institute Digital News Report 2024 found that trust in news has declined in most markets, with only 40% of people across 47 countries saying they trust the news most of the time.",source:"Reuters Institute, Oxford"},
-  {text:"LangGraph, the orchestration framework powering this agent, models the pipeline as a directed graph where each node is a function and edges define conditional routing — similar to how a state machine works.",source:"LangChain / LangGraph docs"},
-];
-
-let quizIdx = 0, quizScore = 0, quizAnswered = false;
-let factIdx  = 0;
-let interactTimers = [];
-
-function switchItab(tab){
-  document.getElementById('tabQuiz').classList.toggle('active', tab==='quiz');
-  document.getElementById('tabFacts').classList.toggle('active', tab==='facts');
-  document.getElementById('panelQuiz').classList.toggle('active', tab==='quiz');
-  document.getElementById('panelFacts').classList.toggle('active', tab==='facts');
-}
-
-function renderQuiz(){
-  const q = QUIZ_DATA[quizIdx % QUIZ_DATA.length];
-  quizAnswered = false;
-  document.getElementById('quizQ').textContent = q.q;
-  document.getElementById('quizExplain').className = 'quiz-explain';
-  document.getElementById('quizExplain').textContent = q.explain;
-  document.getElementById('quizNext').className = 'quiz-next';
-  document.getElementById('quizScore').textContent = quizIdx > 0 ? 'Score: ' + quizScore + ' / ' + quizIdx : '';
-  const opts = document.getElementById('quizOpts');
-  opts.innerHTML = '';
-  q.opts.forEach((o, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'quiz-opt';
-    btn.textContent = o;
-    btn.addEventListener('click', function(){ answerQuiz(i, q.ans, btn); });
-    opts.appendChild(btn);
-  });
-}
-
-function answerQuiz(chosen, correct, btn){
-  if(quizAnswered) return;
-  quizAnswered = true;
-  const opts = document.querySelectorAll('.quiz-opt');
-  opts.forEach((b, i) => {
-    b.disabled = true;
-    if(i === correct) b.classList.add('correct');
-    else if(i === chosen && chosen !== correct) b.classList.add('wrong');
-  });
-  if(chosen === correct) quizScore++;
-  document.getElementById('quizExplain').classList.add('show');
-  document.getElementById('quizNext').classList.add('show');
-  document.getElementById('quizScore').textContent = 'Score: ' + quizScore + ' / ' + (quizIdx + 1);
-}
-
-function nextQuiz(){
-  quizIdx++;
-  renderQuiz();
-}
-
-function renderFacts(){
-  const f = FACTS_DATA[factIdx];
-  document.getElementById('factNum').textContent = 'Fact ' + (factIdx + 1) + ' of ' + FACTS_DATA.length;
-  document.getElementById('factText').textContent = f.text;
-  document.getElementById('factSource').textContent = 'Source: ' + f.source;
-  const dots = document.getElementById('factDots');
-  dots.innerHTML = '';
-  FACTS_DATA.forEach((_, i) => {
-    const d = document.createElement('div');
-    d.className = 'fact-dot' + (i === factIdx ? ' active' : '');
-    dots.appendChild(d);
-  });
-}
-
-function nextFact(){ factIdx = (factIdx + 1) % FACTS_DATA.length; renderFacts(); }
-function prevFact(){ factIdx = (factIdx - 1 + FACTS_DATA.length) % FACTS_DATA.length; renderFacts(); }
-
-function initInteractPanel(){
-  quizIdx = 0; quizScore = 0; factIdx = 0;
-  renderQuiz();
-  renderFacts();
-  // Auto-advance facts every 18s if user hasn't interacted
-  interactTimers.forEach(clearInterval);
-  interactTimers = [];
-  interactTimers.push(setInterval(() => {
-    if(document.getElementById('panelFacts').classList.contains('active')){
-      nextFact();
-    }
-  }, 18000));
-}
-
-function stopInteractPanel(){
-  interactTimers.forEach(clearInterval);
-  interactTimers = [];
 }
 
 async function downloadFromLibrary(outletName){

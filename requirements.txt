@@ -9,13 +9,14 @@ pinecone-client>=3.0.0
 
 # LLM
 openai>=1.0.0
+anthropic>=0.25.0
 
 # Tools / APIs
 tavily-python>=0.3.0
 newsapi-python>=0.2.7
-mediastack          # no version pin — install latest
+mediastack
 
-# RSS parsing (no API key needed)
+# RSS parsing
 feedparser>=6.0.0
 
 # Inter-rater reliability (consensus scoring)
@@ -23,14 +24,21 @@ krippendorff>=0.6.0
 
 # HTTP
 requests>=2.31.0
+httpx>=0.27.0
+
+# Notion integration
+notion-client>=2.2.0
 
 # Environment
 python-dotenv>=1.0.0
 
 # Utilities
-tiktoken>=0.6.0      # Token counting for chunking
+tiktoken>=0.6.0
 
 # FastAPI web service
 fastapi>=0.110.0
-uvicorn>=0.29.0          # ASGI server that runs FastAPI
-pydantic>=2.0.0          # Data validation (used by FastAPI)
+uvicorn[standard]>=0.29.0
+pydantic>=2.0.0
+
+# Static files support
+aiofiles>=23.0.0
