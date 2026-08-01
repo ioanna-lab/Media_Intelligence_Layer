@@ -87,13 +87,13 @@ Three independent AI evaluators score each outlet across 6 dimensions:
 ## Stack
 
 ```
-Python 3.14          FastAPI + Uvicorn
+Python 3.11         FastAPI + Uvicorn
 LangGraph            LangChain
 OpenAI GPT-4o-mini / GPT-5.6-Sol / GPT-5.6-Luna
 Pinecone             text-embedding-3-small
 N8N Cloud            Notion API
 Slack API            Gmail OAuth2
-ngrok                Render (planned)
+Render (Frankfurt)
 ```
 
 ---
@@ -121,21 +121,23 @@ Open `http://localhost:8000` in your browser.
 
 ## Deployment
 
-### Local + ngrok (demo-ready)
+### Local (development)
 
 ```bash
 # Terminal 1
 python3 src/app.py
-
-# Terminal 2
-ngrok http 8000 --request-header-add "ngrok-skip-browser-warning:true"
 ```
 
-Your stable URL: `https://gloater-unrevised-extradite.ngrok-free.dev`
+Open `http://localhost:8000` in your browser.
 
-### Render (permanent)
+### Render (production)
 
-`render.yaml` is in the project root. Connect your GitHub repo at render.com → New Web Service → add environment variables → deploy.
+Live at: **https://media-intelligence-layer.onrender.com**
+
+`render.yaml` and `.python-version` are in the project root. To deploy your own instance:
+connect your GitHub repo at render.com → New Web Service → add environment variables → deploy.
+
+> **Note:** Free tier spins down after 15 minutes of inactivity. Open the URL ~1 minute before presenting to wake it up.
 
 ---
 
@@ -176,7 +178,7 @@ PUBLIC_URL=https://your-ngrok-url
 - The Times: hard paywall, no public RSS
 - GPT-5.6 models: temperature must be 1 (no fine-grained control)
 - Pipeline: 5-8 minutes per fresh run (cache reduces to instant for repeat queries)
-- Deployment: currently localhost + ngrok; Render deployment planned
+- Render free tier: 30s cold start after 15 minutes of inactivity
 
 ---
 
@@ -186,6 +188,7 @@ PUBLIC_URL=https://your-ngrok-url
 src/
 ├── app.py                    FastAPI service + async job queue
 ├── run_agent.py              CLI entry point
+├── cost_estimator.py         API cost estimation per run
 ├── agent/
 │   ├── graph.py              LangGraph pipeline
 │   ├── nodes.py              6 pipeline nodes
@@ -197,12 +200,14 @@ src/
 ├── scoring/                  Consensus scoring + Krippendorff Alpha
 ├── report/                   Report generator + templates
 ├── integrations/
-│   └── notion_client.py      Notion save + fetch
+│   └── notion_client.py      Notion save + fetch (with block reconstruction)
 └── web/
-    └── index.html            Single-page UI (4 screens)
+    └── index.html            Single-page UI (5 screens)
 n8n/
 ├── workflow_notify.json      Workflow 1: Slack + Gmail notifications
 └── workflow_email_only.json  Workflow 1b: Email only
 corpus/                       11 RAG documents
-reports/                      Generated .md reports
+reports/                      Generated .md reports (ephemeral on Render)
+render.yaml                   Render deployment config
+.python-version               Pins Python 3.11.9
 ```

@@ -81,9 +81,10 @@ Note: GPT-5.6 models only support temperature=1. gpt-4o-mini fallback activates 
 | / | GET | Serve web UI |
 | /research | POST | Start pipeline job, return job_id |
 | /job/{job_id} | GET | Poll for completion |
+| /view/{outlet} | GET | Standalone rendered report page (no Notion login needed) |
 | /send-report | POST | Trigger email-only notification |
 | /reports-library | GET | Fetch all reports from Notion |
-| /report/{outlet} | GET | Fetch saved .md report |
+| /report/{outlet} | GET | Fetch saved .md report (raw markdown) |
 | /health | GET | Health check |
 
 ### Async Job Pattern
@@ -165,9 +166,13 @@ Notification bar after report:
 **Problem:** N8N Cloud does not expose the Execute Command node.
 **Solution:** N8N calls FastAPI via HTTP Request instead. Cleaner architecture — N8N is the orchestrator, Python is the engine.
 
-### 8. datetime scope error in run_job
-**Problem:** `datetime` imported inside `try` block inside `run_job` closure, causing scope issues.
-**Solution:** Moved `from datetime import datetime, timedelta` to the top of `run_job()`.
+### 9. Cache screen never appeared on Render / slow Notion
+**Problem:** `startAnalysis()` did one immediate poll after POST /research. Notion lookup took longer than that poll, so status was still `running`. `pollJob()` returned `cached` but the code went straight to `renderReport()`, skipping the cache decision screen entirely.
+**Solution:** Added cache screen routing inside the `pollJob()` return path -- if `data.status === 'cached'`, show the cache screen regardless of when Notion finished.
+
+### 10. Ephemeral storage on Render
+**Problem:** Render's free tier resets the filesystem on every deploy. `reports/*.md` files don't persist, so `/view/{outlet}` returned 404 and cache hits served empty reports.
+**Solution:** Added `get_report_content_from_notion()` to `notion_client.py` -- fetches page blocks and reconstructs markdown on demand. `app.py` now fetches from Notion and saves locally when the local file is missing. Subsequent requests in the same session use the cached local file.
 
 ---
 
@@ -175,11 +180,12 @@ Notification bar after report:
 
 | Limitation | Impact | Mitigation |
 |------------|--------|------------|
-| 5-8 min pipeline | Slow for first run | 7-day cache; cache screen shows existing report |
+| 5-8 min pipeline | Slow for first run | 7-day cache; cache screen shows existing report with cost comparison |
 | NewsAPI 30-day limit | No historical news via NewsAPI | Guardian API covers 30/90/180d windows |
 | GDELT rate-limited | Dev environment blocked | 24h JSON cache; Guardian as primary fallback |
 | GPT-5.6 temp=1 only | Less evaluator diversity | gpt-4o-mini at temp=0.3 still provides variance |
-| No permanent deployment | Requires local server | Render.yaml ready; deployment planned |
+| Render free tier cold start | 30s wake-up after 15min inactivity | Open URL before presenting; UptimeRobot ping option |
+| Ephemeral Render storage | reports/ folder resets on redeploy | Notion blocks fetched and reconstructed on demand |
 | The Times hard paywall | No RSS available | Removed from RSS map; graceful fallback |
 
 ---
@@ -189,9 +195,8 @@ Notification bar after report:
 1. **Daily media briefing service** — N8N scheduled workflow, topic selection, autonomous curation, email delivery
 2. **International outlets** — Le Monde, FAZ, El País, Corriere della Sera; multilingual reports
 3. **Speed modes** — Quick (2-3 min) / Standard / Deep with configurable depth
-4. **Interactive loading** — AI ethics quiz + outlet facts during pipeline run
-5. **Signal detection** — Scheduled monitoring; Slack alert on significant editorial drift
-6. **Render deployment** — Permanent URL; full N8N orchestration without local server
+4. **Signal detection** — Scheduled monitoring; Slack alert on significant editorial drift
+5. **UptimeRobot keep-alive** — Ping Render every 5 minutes to prevent cold starts
 
 ---
 
@@ -238,6 +243,7 @@ Free tier spins down after 15 min inactivity (30s cold start).
 - **Session 7–8:** Report generator, competitive position analysis, drift analysis
 - **Session 9–10:** FastAPI, async job queue, ngrok deployment
 - **Session 11:** Notion integration, N8N Workflow 1, Slack + Gmail delivery
-- **Session 12:** UI rebuild (4 screens), email validation, stop modal, cache flow
+- **Session 12:** UI rebuild (5 screens), email validation, stop modal, cache flow
 - **Session 13:** Hard problem resolution (double Slack, datetime scope, onclick undefined)
 - **Session 14:** Executive summary expansion, GPT-5.6 temperature fix, documentation
+- **Session 15:** Cache screen race condition fix, interactive waiting panel (ethics quiz + media facts), "Run fresh analysis" buttons, Past Reports back navigation, /view/ endpoint replacing Notion links, drift section cleanup, cost estimator, Render deployment (Frankfurt, Python 3.11), Notion block reconstruction for ephemeral storage
