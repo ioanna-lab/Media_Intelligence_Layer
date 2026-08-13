@@ -119,7 +119,11 @@ METHODOLOGY_TEXT = """**Data sources:** Tavily web search · NewsAPI · Guardian
 
 **Competitor identification:** Automatic — LLM analyses Wikipedia profile + RAG context to identify the 2 closest competitors by geography, format, audience, and editorial positioning.
 
-*This report was generated autonomously by the Media Intelligence Agent.*
+---
+
+> **⚠️ AI-Generated Content — Article 50(4) EU AI Act**  
+> This report was produced autonomously by the Media Intelligence Agent using large language models (OpenAI GPT-4o-mini). It has not been reviewed by a human analyst. It is intended as a research aid and should be reviewed critically before use in editorial, commercial, or strategic decisions.
+
 *References: [Inter-rater reliability](https://en.wikipedia.org/wiki/Inter-rater_reliability) · [Inter-Annotator Agreement](https://www.innovatiana.com/en/post/inter-annotator-agreement)*"""
 
 

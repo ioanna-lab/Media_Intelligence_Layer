@@ -325,6 +325,9 @@ function hideSendEmailForm(){
         <label class="input-lbl">Send report to <span class="opt">optional - leave blank to store in database only</span></label>
         <input type="email" id="emailInput" class="outlet-input" style="font-size:15px;padding:14px 18px;" placeholder="analyst@company.com"/>
         <div class="field-error" id="emailError">Please enter a valid email address (e.g. name@company.com)</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5;">
+          🔒 Your email address is used only to deliver this report and is not stored or shared after delivery.
+        </div>
       </div>
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--muted);margin-top:10px;">
         <input type="checkbox" id="forceRefresh" style="width:14px;height:14px;cursor:pointer;"/>
